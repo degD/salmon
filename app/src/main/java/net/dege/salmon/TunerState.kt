@@ -10,6 +10,7 @@ data class TunerState(
     val isCorrectThreshold: Float = 5f,
     val isCorrect: Boolean = false,
     val tableOfNotes: List<Pair<String, Float>> = listOf(
-        Pair("E2", 100f), Pair("B", 150f), Pair("G", 200f), Pair("A", 440f)
+        Pair("D", 0f), Pair("A", 0f), Pair("E", 0f),
+        Pair("G", 0f), Pair("B", 0f), Pair("E", 0f),
     )
 )
