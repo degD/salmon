@@ -17,16 +17,16 @@ class TunerViewModel : ViewModel() {
 
     fun setSelectedNote(note: String) {
         if (note in tableOfFreq) {
-            _tunerState.value.selectedNote = note
+            _tunerState.value = _tunerState.value.copy(selectedNote = note)
         }
     }
 
     fun toggleMode() {
         if (_tunerState.value.mode == TunerMode.AUTO) {
-            _tunerState.value.mode = TunerMode.MANUAL
+            _tunerState.value = _tunerState.value.copy(mode = TunerMode.MANUAL)
         }
         else {
-            _tunerState.value.mode = TunerMode.AUTO
+            _tunerState.value = _tunerState.value.copy(mode = TunerMode.AUTO)
         }
     }
 
@@ -56,15 +56,14 @@ class TunerViewModel : ViewModel() {
     // Tuner gets audio, runs pitch (freq) detection. If detects
     // pitch, runs this function to update the state.
     fun updateIncomingFrequency(freq: Float) {
-        _tunerState.value.incomingFrequency = freq
+        _tunerState.value = _tunerState.value.copy(incomingFrequency = freq)
 
         if (_tunerState.value.mode == TunerMode.AUTO) {
-            _tunerState.value.selectedNote = getClosestNote(freq)
-            // TODO: Double-check, maybe not changed in scope? (Like React)
+            _tunerState.value = _tunerState.value.copy(selectedNote = getClosestNote(freq))
         }
 
         val selectedFreq = tableOfFreq[_tunerState.value.selectedNote] ?: Float.MAX_VALUE
         val cents = getPitchDeviation(freq, selectedFreq)
-        _tunerState.value.centsOffset = cents
+        _tunerState.value = _tunerState.value.copy(centsOffset = cents)
     }
 }

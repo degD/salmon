@@ -1,7 +1,9 @@
 package net.dege.salmon
 
 import android.widget.Switch
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -48,12 +50,17 @@ fun TitleSection(
 fun NoteButton(
     modifier: Modifier = Modifier,
     note: String,
+    isNoteCorrect: Boolean,
     onClick: (String) -> Unit
 ) {
     Box(modifier = modifier
         .size(64.dp)
         .padding(4.dp)
         .background(Color.Yellow, CircleShape)
+        .border(
+            if (isNoteCorrect) 2.dp else 0.dp,
+            Color.Magenta,
+        )
         .clickable { onClick(note) },
         contentAlignment = Alignment.Center,
     ) {
@@ -65,6 +72,7 @@ fun NoteButton(
 fun NotesColumn(
     modifier: Modifier = Modifier,
     notesSlice: List<String>,
+    isCorrectSlice: List<Boolean>,
     onClickNoteButton: (String) -> Unit
 ) {
     Column(modifier = modifier
@@ -75,17 +83,19 @@ fun NotesColumn(
         NoteButton(
             Modifier,
             notesSlice[0],
+            isCorrectSlice[0],
             onClickNoteButton
         )
         NoteButton(
             Modifier,
             notesSlice[1],
+            isCorrectSlice[1],
             onClickNoteButton
-
         )
         NoteButton(
             Modifier,
             notesSlice[2],
+            isCorrectSlice[2],
             onClickNoteButton
         )
     }
@@ -95,6 +105,7 @@ fun NotesColumn(
 fun NoteDisplaySection(
     modifier: Modifier = Modifier,
     notes: List<String>,
+    isCorrect: List<Boolean>,
     onClickNoteButton: (String) -> Unit
 ) {
     Row(modifier = modifier
@@ -105,6 +116,7 @@ fun NoteDisplaySection(
         NotesColumn(
             Modifier.weight(2f),
             notes.slice(0..2),
+            isCorrect.slice((0..2)),
             onClickNoteButton
         )
 
@@ -115,6 +127,7 @@ fun NoteDisplaySection(
         NotesColumn(
             Modifier.weight(2f),
             notes.slice(3..5),
+            isCorrect.slice(3..5),
             onClickNoteButton
         )
     }
@@ -200,6 +213,7 @@ fun TunerScreen(viewModel: TunerViewModel) {
         NoteDisplaySection(
             modifier = Modifier.weight(5f),
             state.notes,
+            state.isCorrect,
             ::onClickNoteButton
         )
 
