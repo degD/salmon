@@ -1,5 +1,6 @@
 package net.dege.salmon
 
+import android.content.pm.PackageManager
 import android.widget.Switch
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -21,6 +22,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker.checkSelfPermission
+import java.util.jar.Manifest
 import kotlin.math.round
 
 @Composable
