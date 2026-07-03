@@ -1,0 +1,12 @@
+package net.dege.salmon
+
+object TunerConfig {
+
+    // Tuner functionality related configs:
+    const val SAMPLE_RATE = 44100
+    const val AUDIO_BUFFER_SIZE = 2048
+    const val BUFFER_OVERLAP = 3
+    const val PROBABILITY_THRESHOLD = 0.91f
+
+
+}

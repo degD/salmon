@@ -7,24 +7,17 @@ import be.tarsos.dsp.pitch.PitchProcessor
 import be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm
 import kotlin.concurrent.thread
 
-class TunerFunctionality(
-    detectedPitch: MutableFloatState,
-    detectedPitchProbability: MutableFloatState,
-) {
-    private val _detectedPitch = detectedPitch
-    private val _detectedPitchProbability = detectedPitchProbability
-    private val _sampleRate = 22050
-    private val _audioBufferSize = 1024
-    private val _bufferOverlap = 0
+class TunerFunctionality {
+    private val _sampleRate = TunerConfig.SAMPLE_RATE
+    private val _audioBufferSize = TunerConfig.AUDIO_BUFFER_SIZE
+    private val _bufferOverlap = TunerConfig.BUFFER_OVERLAP
 
-    fun startTuner() {
+    fun startTuner(callback: (pitch: Float, probability: Float) -> Unit) {
         val audioDispatcher = AudioDispatcherFactory.fromDefaultMicrophone(
             _sampleRate, _audioBufferSize, _bufferOverlap
         )
         val pdh = PitchDetectionHandler {
-                result, _ ->
-                    _detectedPitch.floatValue = result.pitch
-                    _detectedPitchProbability.floatValue = result.probability
+                result, _ -> callback(result.pitch, result.probability)
         }
         val audioProcessor = PitchProcessor(
             PitchEstimationAlgorithm.FFT_YIN,

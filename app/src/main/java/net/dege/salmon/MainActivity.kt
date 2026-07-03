@@ -17,19 +17,25 @@ import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
     private val viewModel: TunerViewModel by viewModels()
-    private val detectedPitch = mutableFloatStateOf(-1f)
-    private val detectedPitchProbability = mutableFloatStateOf(0f)
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            TunerFunctionality(
-                detectedPitch,
-                detectedPitchProbability
-            ).startTuner()
-        } else {
+            startTuner()
+        }
+        else {
             // If no mic access, no tuner app!
             finishAndRemoveTask()
+        }
+    }
+
+    fun startTuner() {
+        TunerFunctionality().startTuner {
+            pitch, probability ->
+                viewModel.updateIncomingFrequency(
+                    pitch,
+                    probability
+                )
         }
     }
 
@@ -41,11 +47,7 @@ class MainActivity : ComponentActivity() {
                 this,
                 android.Manifest.permission.RECORD_AUDIO
             ) == PackageManager.PERMISSION_GRANTED -> {
-                TunerFunctionality(
-                    detectedPitch,
-                    detectedPitchProbability
-                ).startTuner()
-                // TODO: Move to TunerViewModel
+                startTuner()
             }
             else -> {
                 requestPermissionLauncher.launch(

@@ -18,6 +18,7 @@ val tableOfFreq: Map<String, Float> = mapOf(
 
 val defaultTunerState: TunerState = TunerState(
     TunerMode.AUTO,
+    -1f,
     0f,
     listOf(false, false, false, false, false, false),
     listOf("D3", "A2", "E2", "G3", "B3", "E4"),
@@ -28,16 +29,9 @@ val defaultTunerState: TunerState = TunerState(
 data class TunerState(
     val mode: TunerMode,
     val incomingFrequency: Float,
+    val incomingFrequencyProbability: Float,
     val isCorrect: List<Boolean>,
     val notes: List<String>,
     val selectedNote: String,
     val centsOffset: Float,
-)
-
-data class TunerSettings(
-    val darkTheme: Boolean,
-    val isCorrectThreshold: Float,
-    val simplifyCentsDisplay: Boolean,
-    val simplificationFactor: Int,
-    val windowWidth: Float,
 )
