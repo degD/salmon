@@ -6,7 +6,7 @@ object TunerConfig {
     const val SAMPLE_RATE = 44100
     const val AUDIO_BUFFER_SIZE = 2048
     const val BUFFER_OVERLAP = 3
-    const val PROBABILITY_THRESHOLD = 0.91f
-
+    const val PROBABILITY_THRESHOLD = 0.96f
+    const val CORRECT_TIME_MS = 1500
 
 }

@@ -30,10 +30,9 @@ import kotlin.math.round
 @Composable
 fun TitleSection(
     modifier: Modifier = Modifier,
-    onClickModeSwitch: () -> Unit
+    viewModel: TunerViewModel
 ) {
-    var checked by remember { mutableStateOf(true) }
-
+    val state = viewModel.tunerState.value
     Row(modifier = modifier
         .fillMaxSize()
         .background(Color.Red),
@@ -42,10 +41,9 @@ fun TitleSection(
     ) {
         Text("AUTO")
         Switch(
-            checked,
+            state.mode == TunerMode.AUTO,
             {
-                checked = it
-                onClickModeSwitch()
+                viewModel.toggleMode()
             })
     }
 }
@@ -54,18 +52,28 @@ fun TitleSection(
 fun NoteButton(
     modifier: Modifier = Modifier,
     note: String,
-    isNoteCorrect: Boolean,
-    onClick: (String) -> Unit
+    viewModel: TunerViewModel
 ) {
+    val state = viewModel.tunerState.value
+    val noteIndex = state.notes.indexOf(note)
+    val isNoteCorrect = if (noteIndex >= 0)
+        state.isCorrect[noteIndex] else false
+
     Box(modifier = modifier
         .size(64.dp)
         .padding(4.dp)
-        .background(Color.Yellow, CircleShape)
+        .background(
+            if (note != state.selectedNote) Color.Yellow else Color.Magenta,
+            CircleShape
+        )
         .border(
             if (isNoteCorrect) 2.dp else 0.dp,
-            Color.Magenta,
+            Color.White,
         )
-        .clickable { onClick(note) },
+        .clickable {
+            viewModel.setSelectedNote(note)
+            viewModel.setModeManual()
+        },
         contentAlignment = Alignment.Center,
     ) {
         Text(note)
@@ -75,42 +83,30 @@ fun NoteButton(
 @Composable
 fun NotesColumn(
     modifier: Modifier = Modifier,
-    notesSlice: List<String>,
-    isCorrectSlice: List<Boolean>,
-    onClickNoteButton: (String) -> Unit
+    range: IntRange,
+    viewModel: TunerViewModel
 ) {
+    val state = viewModel.tunerState.value
     Column(modifier = modifier
         .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround
     ) {
-        NoteButton(
-            Modifier,
-            notesSlice[0],
-            isCorrectSlice[0],
-            onClickNoteButton
-        )
-        NoteButton(
-            Modifier,
-            notesSlice[1],
-            isCorrectSlice[1],
-            onClickNoteButton
-        )
-        NoteButton(
-            Modifier,
-            notesSlice[2],
-            isCorrectSlice[2],
-            onClickNoteButton
-        )
+        range.forEach {
+            rangeIndex ->
+                NoteButton(
+                    Modifier,
+                    state.notes[rangeIndex],
+                    viewModel
+                )
+        }
     }
 }
 
 @Composable
 fun NoteDisplaySection(
     modifier: Modifier = Modifier,
-    notes: List<String>,
-    isCorrect: List<Boolean>,
-    onClickNoteButton: (String) -> Unit
+    viewModel: TunerViewModel
 ) {
     Row(modifier = modifier
         .fillMaxSize()
@@ -119,9 +115,8 @@ fun NoteDisplaySection(
         // Notes on the left
         NotesColumn(
             Modifier.weight(2f),
-            notes.slice(0..2),
-            isCorrect.slice((0..2)),
-            onClickNoteButton
+            0..2,
+            viewModel
         )
 
         // Separator for note columns
@@ -130,9 +125,8 @@ fun NoteDisplaySection(
         // Notes on the right
         NotesColumn(
             Modifier.weight(2f),
-            notes.slice(3..5),
-            isCorrect.slice(3..5),
-            onClickNoteButton
+            3..5,
+            viewModel
         )
     }
 }
@@ -140,18 +134,19 @@ fun NoteDisplaySection(
 @Composable
 fun TuningSliderSection(
     modifier: Modifier = Modifier,
-    centsOffset: Float
+    viewModel: TunerViewModel
 ) {
+    val state = viewModel.tunerState.value
     BoxWithConstraints(modifier = modifier
         .fillMaxSize()
         .background(Color.Green),
         contentAlignment = Alignment.Center,
     ) {
         val boxWidth = maxWidth
-        val offsetText = "${round(centsOffset).toInt()}"
+        val offsetText = "${round(state.centsOffset).toInt()}"
 
         fun convertCentsOffsetToOffsetX(): Dp {
-            var centsOffset = centsOffset
+            var centsOffset = state.centsOffset
             if (centsOffset < -100) centsOffset = -100f
             else if (centsOffset > 100) centsOffset = 100f
             return (boxWidth - 40.dp) * centsOffset / 200f
@@ -181,20 +176,26 @@ fun TuningSliderSection(
 }
 
 @Composable
+fun FooterSection(
+    modifier: Modifier = Modifier,
+    viewModel: TunerViewModel
+) {
+    Column(modifier = modifier
+        .fillMaxSize()
+        .background(Color.Black),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceAround
+    ) {
+        Button({
+            viewModel.restoreDefaults()
+        }) {
+            Text("Start Over")
+        }
+    }
+}
+
+@Composable
 fun TunerScreen(viewModel: TunerViewModel) {
-    val state = viewModel.tunerState.value
-
-    fun onClickNoteButton(note: String) {
-        println("Note changed from ${state.selectedNote} to $note")
-        viewModel.setSelectedNote(note)
-        // TODO: Highlight note button etc.
-    }
-
-    fun onClickModeSwitch() {
-        viewModel.toggleMode()
-        println("Mode changed to ${state.mode}")
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -204,34 +205,25 @@ fun TunerScreen(viewModel: TunerViewModel) {
         // title section
         TitleSection(
             modifier = Modifier.weight(1f),
-            ::onClickModeSwitch
+            viewModel
         )
 
         // Tuning slider
         TuningSliderSection(
             modifier = Modifier.weight(3f),
-            state.centsOffset
+            viewModel
         )
 
         // note display section
         NoteDisplaySection(
             modifier = Modifier.weight(5f),
-            state.notes,
-            state.isCorrect,
-            ::onClickNoteButton
+            viewModel
         )
 
         // Start over button. Maybe settings?
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .weight(1f)
-            .background(Color.Black),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceAround
-        ) {
-            Button({}) {
-                Text("Start Over")
-            }
-        }
+        FooterSection(
+            modifier = Modifier.weight(1f),
+            viewModel
+        )
     }
 }
