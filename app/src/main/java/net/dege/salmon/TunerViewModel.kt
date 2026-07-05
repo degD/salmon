@@ -29,17 +29,33 @@ class TunerViewModel : ViewModel() {
         _tunerState.value = _tunerState.value.copy(correctStartTime = null)
     }
 
-    fun toggleMode() {
-        if (_tunerState.value.mode == TunerMode.AUTO) {
-            _tunerState.value = _tunerState.value.copy(mode = TunerMode.MANUAL)
+    private fun setMode(mode: TunerMode) {
+        if (mode == TunerMode.AUTO) {
+            _tunerState.value = _tunerState.value.copy(mode = TunerMode.AUTO)
+            _tunerState.value = _tunerState.value.copy(selectedNote = null)
         }
         else {
-            _tunerState.value = _tunerState.value.copy(mode = TunerMode.AUTO)
+            _tunerState.value = _tunerState.value.copy(mode = TunerMode.MANUAL)
+            if (_tunerState.value.selectedNote == null) {
+                _tunerState.value = _tunerState.value.copy(
+                    selectedNote = _tunerState.value.notes[2]
+                    // TODO: In the default case, E2. Maybe can be made more intuitive?
+                )
+            }
+        }
+    }
+
+    fun toggleMode() {
+        if (_tunerState.value.mode == TunerMode.AUTO) {
+            setMode(mode = TunerMode.MANUAL)
+        }
+        else {
+            setMode(mode = TunerMode.AUTO)
         }
     }
 
     fun setModeManual() {
-        _tunerState.value = _tunerState.value.copy(mode = TunerMode.MANUAL)
+        setMode(mode = TunerMode.MANUAL)
     }
 
     fun restoreDefaults() {

@@ -24,7 +24,7 @@ val defaultTunerState: TunerState = TunerState(
     0f,
     listOf(false, false, false, false, false, false),
     listOf("D3", "A2", "E2", "G3", "B3", "E4"),
-    "E2",
+    null,
     0f,
     null
 )
@@ -35,7 +35,7 @@ data class TunerState(
     val incomingFrequencyProbability: Float,
     val isCorrect: List<Boolean>,
     val notes: List<String>,
-    val selectedNote: String,
+    val selectedNote: String?,
     val centsOffset: Float,
     val correctStartTime: TimeSource.Monotonic.ValueTimeMark?,
 )
