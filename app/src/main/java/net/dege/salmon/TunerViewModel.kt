@@ -13,6 +13,7 @@ import kotlin.collections.listOf
 import kotlin.math.abs
 import kotlin.math.log2
 import kotlin.math.round
+import kotlin.time.TimeSource.Monotonic.markNow
 
 class TunerViewModel : ViewModel() {
     private val _tunerState = mutableStateOf(defaultTunerState)
@@ -25,7 +26,7 @@ class TunerViewModel : ViewModel() {
         if (note in tableOfFreq) {
             _tunerState.value = _tunerState.value.copy(selectedNote = note)
         }
-        _tunerState.value = _tunerState.value.copy(selectedNoteStartMs = 0)
+        _tunerState.value = _tunerState.value.copy(correctStartTime = null)
     }
 
     fun toggleMode() {
@@ -78,19 +79,34 @@ class TunerViewModel : ViewModel() {
                 incomingFrequencyProbability = prob
             )
 
+            val prevSelectedNote = _tunerState.value.selectedNote
             if (_tunerState.value.mode == TunerMode.AUTO) {
                 _tunerState.value = _tunerState.value.copy(selectedNote = getClosestNote(freq))
             }
 
+            val selectedNote = _tunerState.value.selectedNote
             val selectedFreq = tableOfFreq[_tunerState.value.selectedNote] ?: Float.MAX_VALUE
             val cents = getPitchDeviation(freq, selectedFreq)
             _tunerState.value = _tunerState.value.copy(centsOffset = cents)
 
+            // If correct and selected note the same for CORRECT_TIME_MS or more,
+            // then set isCorrect[selectedNote] = true.
             if (abs(cents) <= correctThreshold) {
-                viewModelScope.launch(Dispatchers.Default) {
 
+                val correctStartTime = _tunerState.value.correctStartTime
+                if (correctStartTime != null && selectedNote == prevSelectedNote) {
+                    val duration = correctStartTime.elapsedNow()
+                    if (duration.inWholeMilliseconds > TunerConfig.CORRECT_TIME_MS) {
+
+                        val noteIndex = _tunerState.value.notes.indexOf(selectedNote)
+                        val newIsCorrect = _tunerState.value.isCorrect.toMutableList()
+                        newIsCorrect[noteIndex] = true
+                        _tunerState.value = _tunerState.value.copy(isCorrect = newIsCorrect)
+                    }
                 }
-
+                else {
+                    _tunerState.value = _tunerState.value.copy(correctStartTime = markNow())
+                }
             }
         }
     }

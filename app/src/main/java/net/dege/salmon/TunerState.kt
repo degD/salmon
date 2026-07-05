@@ -1,5 +1,7 @@
 package net.dege.salmon
 
+import kotlin.time.TimeSource
+
 enum class TunerMode {
     AUTO, MANUAL
 }
@@ -23,7 +25,8 @@ val defaultTunerState: TunerState = TunerState(
     listOf(false, false, false, false, false, false),
     listOf("D3", "A2", "E2", "G3", "B3", "E4"),
     "E2",
-    0f
+    0f,
+    null
 )
 
 data class TunerState(
@@ -34,4 +37,5 @@ data class TunerState(
     val notes: List<String>,
     val selectedNote: String,
     val centsOffset: Float,
+    val correctStartTime: TimeSource.Monotonic.ValueTimeMark?,
 )
