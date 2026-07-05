@@ -22,6 +22,7 @@ class MainActivity : ComponentActivity() {
     ) { isGranted: Boolean ->
         if (isGranted) {
             startTuner()
+            startTunerInactivityLimit()
         }
         else {
             // If no mic access, no tuner app!
@@ -39,6 +40,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    fun startTunerInactivityLimit() {
+        TunerFunctionality().startTunerInactivityLimit {
+            viewModel.checkLastDetectionTime()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -48,6 +55,7 @@ class MainActivity : ComponentActivity() {
                 android.Manifest.permission.RECORD_AUDIO
             ) == PackageManager.PERMISSION_GRANTED -> {
                 startTuner()
+                startTunerInactivityLimit()
             }
             else -> {
                 requestPermissionLauncher.launch(

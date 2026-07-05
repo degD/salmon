@@ -26,6 +26,7 @@ val defaultTunerState: TunerState = TunerState(
     listOf("D3", "A2", "E2", "G3", "B3", "E4"),
     null,
     0f,
+    null,
     null
 )
 
@@ -38,4 +39,5 @@ data class TunerState(
     val selectedNote: String?,
     val centsOffset: Float,
     val correctStartTime: TimeSource.Monotonic.ValueTimeMark?,
+    val lastDetectionTime: TimeSource.Monotonic.ValueTimeMark?,
 )

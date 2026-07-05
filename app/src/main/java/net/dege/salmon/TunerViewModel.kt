@@ -85,11 +85,28 @@ class TunerViewModel : ViewModel() {
         return cents
     }
 
+    fun checkLastDetectionTime() {
+        val lastDetectionTime = _tunerState.value.lastDetectionTime
+        if (lastDetectionTime != null) {
+            val duration = lastDetectionTime.elapsedNow()
+            if (duration.inWholeMilliseconds > TunerConfig.LAST_DETECT_TIME_MS) {
+                _tunerState.value = _tunerState.value.copy(lastDetectionTime = null)
+            }
+        }
+    }
+
     // Tuner gets audio, runs pitch (freq) detection. If detects
     // pitch, runs this function to update the state.
     fun updateIncomingFrequency(freq: Float, prob: Float) {
         val correctThreshold = _settings.value.isCorrectThreshold
         if (prob >= TunerConfig.PROBABILITY_THRESHOLD) {
+
+            // If time past since last detection is more than LAST_DETECT_TIME_MS,
+            // reset the cursor offset.
+            _tunerState.value = _tunerState.value.copy(
+                lastDetectionTime = markNow()
+            )
+
             _tunerState.value = _tunerState.value.copy(
                 incomingFrequency = freq,
                 incomingFrequencyProbability = prob

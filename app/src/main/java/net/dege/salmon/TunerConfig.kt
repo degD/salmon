@@ -8,5 +8,6 @@ object TunerConfig {
     const val BUFFER_OVERLAP = 3
     const val PROBABILITY_THRESHOLD = 0.96f
     const val CORRECT_TIME_MS = 1500
+    const val LAST_DETECT_TIME_MS = 4000
 
 }

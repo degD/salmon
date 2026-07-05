@@ -137,13 +137,19 @@ fun TuningSliderSection(
     viewModel: TunerViewModel
 ) {
     val state = viewModel.tunerState.value
+    val lastDetectionTime = viewModel.tunerState.value.lastDetectionTime
+
     BoxWithConstraints(modifier = modifier
         .fillMaxSize()
         .background(Color.Green),
         contentAlignment = Alignment.Center,
     ) {
         val boxWidth = maxWidth
-        val offsetText = "${round(state.centsOffset).toInt()}"
+        var offsetText = ""
+
+        if (lastDetectionTime != null) {
+            offsetText = "${round(state.centsOffset).toInt()}"
+        }
 
         fun convertCentsOffsetToOffsetX(): Dp {
             var centsOffset = state.centsOffset
@@ -161,7 +167,7 @@ fun TuningSliderSection(
         // cursor positioning
         Box(Modifier
             .absoluteOffset(
-                convertCentsOffsetToOffsetX()
+                if (lastDetectionTime != null) convertCentsOffsetToOffsetX() else 0.dp
             ),
         ) {
             Box(Modifier
