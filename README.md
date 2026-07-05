@@ -1,41 +1,34 @@
 # Salmon (Working Title)
 
 A fast, offline-first, open-source guitar tuner for Android.
+Most tuner apps today have evolved into subscription platforms, 
+requiring internet connectivity, accounts, advertisements, or 
+cloud services for functionality that should work entirely on-device.
 
-## Motivation
+This app is inspired a lot from open-source tuners like 
+daTuner and gStrings. But the main inspiration has come 
+from the GuitarTuna closed source tuner app.
 
-Most tuner apps today have evolved into subscription platforms, requiring internet connectivity, accounts, advertisements, or cloud services for functionality that should work entirely on-device.
+## Development
 
-Salmon aims to provide a simple alternative:
-
-* Works completely offline
-* No account required
-* No advertisements
-* No telemetry
-* Open source
-* Fast startup
-* Focused on tuning rather than gamification
-
-## Current Status
-
-🚧 Work in Progress
-
-The project is currently in the architecture and prototyping phase.
+1. Grab the source code and clone.
+2. Install latest TarsosDSP .jar Android library file.
+3. Put TarsosDSP under app/libs.
+4. Start development.
 
 ## Goals
 
-### MVP
-
+* Super useful UI
 * Real-time microphone input
 * Pitch detection
 * Frequency display
 * Note detection
 * Cents offset visualization
-* Guitar tuning mode (E A D G B e)
+* Guitar tuning mode (E2 A D G B E4)
 * Dark mode support
 * Offline operation
 
-### Future Goals
+## Future Goals
 
 * Alternate tunings
 * Bass guitar support
@@ -47,13 +40,11 @@ The project is currently in the architecture and prototyping phase.
 ## Technology Stack (Kotlin)
 
 * Compose UI
-* Pitch Detection
-* Audio Capture
-* Settings
+* TarsosDSP for pitch detection (for now)
 
 ### Pitch Detection
 
-Initial candidates:
+Initial candidate algorithms:
 
 * YIN
 * McLeod Pitch Method (MPM)
@@ -68,44 +59,6 @@ Goals:
 * Stable note detection
 * Minimal jitter
 * Robustness against guitar harmonics
-
-### Visualization
-
-Compose Canvas
-
-Components:
-
-* Tuning needle
-* Cents deviation indicator
-* Confidence feedback
-* String selection interface
-
-## Architecture
-
-```text
-Microphone
-    │
-    ▼
-Audio Capture
-    │
-    ▼
-Preprocessing
-    │
-    ▼
-Pitch Detection
-    │
-    ▼
-Confidence Filter
-    │
-    ▼
-Temporal Smoothing
-    │
-    ▼
-Note Mapping
-    │
-    ▼
-Compose UI
-```
 
 ## Privacy
 
@@ -142,18 +95,4 @@ Areas where help is particularly useful:
 
 ## License
 
-License has not been finalized.
-
-Candidates:
-
-* MIT
-* Apache-2.0
-* GPLv3
-
-## Inspiration
-
-* GuitarTuna
-* gStrings
-* DaTuner
-
-The goal is not to replicate every feature of these applications, but to provide a lightweight, offline, and open alternative focused on tuning.
+Undecided Yet...

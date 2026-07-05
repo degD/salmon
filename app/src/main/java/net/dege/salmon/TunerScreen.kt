@@ -35,7 +35,7 @@ fun TitleSection(
     val state = viewModel.tunerState.value
     Row(modifier = modifier
         .fillMaxSize()
-        .background(Color.Red),
+        .background(Color.DarkGray),
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -110,7 +110,7 @@ fun NoteDisplaySection(
 ) {
     Row(modifier = modifier
         .fillMaxSize()
-        .background(Color.Red),
+        .background(Color.DarkGray),
     ) {
         // Notes on the left
         NotesColumn(
@@ -141,7 +141,7 @@ fun TuningSliderSection(
 
     BoxWithConstraints(modifier = modifier
         .fillMaxSize()
-        .background(Color.Green),
+        .background(Color.Black),
         contentAlignment = Alignment.Center,
     ) {
         val boxWidth = maxWidth
@@ -188,7 +188,7 @@ fun FooterSection(
 ) {
     Column(modifier = modifier
         .fillMaxSize()
-        .background(Color.Black),
+        .background(Color.DarkGray),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround
     ) {
