@@ -218,6 +218,7 @@ fun TuningSliderSection(
 ) {
     val state = viewModel.tunerState.value
     val lastDetectionTime = viewModel.tunerState.value.lastDetectionTime
+    val selectedNote = viewModel.tunerState.value.selectedNote
 
     BoxWithConstraints(modifier = modifier
         .fillMaxSize()
@@ -244,7 +245,8 @@ fun TuningSliderSection(
         // cursor positioning
         Box(Modifier
             .absoluteOffset(
-                if (lastDetectionTime != null) convertCentsOffsetToOffsetX() else 0.dp
+                if (lastDetectionTime != null) convertCentsOffsetToOffsetX() else 0.dp,
+                (-60).dp
             ),
         ) {
             Box(Modifier
@@ -253,6 +255,24 @@ fun TuningSliderSection(
                 contentAlignment = Alignment.Center
             ) {
                 Text(offsetText)
+            }
+        }
+
+        // display selected note below it
+        if (lastDetectionTime != null && selectedNote != null) {
+            Box(Modifier
+                .absoluteOffset(
+                    0.dp,
+                    60.dp
+                ),
+            ) {
+                Box(Modifier
+                    .size(40.dp)
+                    .background(Color.Gray, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(selectedNote)
+                }
             }
         }
     }
