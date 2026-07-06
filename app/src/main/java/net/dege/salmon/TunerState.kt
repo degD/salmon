@@ -1,5 +1,7 @@
 package net.dege.salmon
 
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlin.time.TimeSource
 
 enum class TunerMode {
@@ -27,7 +29,8 @@ val defaultTunerState: TunerState = TunerState(
     null,
     0f,
     null,
-    null
+    null,
+    0.dp
 )
 
 data class TunerState(
@@ -40,4 +43,5 @@ data class TunerState(
     val centsOffset: Float,
     val correctStartTime: TimeSource.Monotonic.ValueTimeMark?,
     val lastDetectionTime: TimeSource.Monotonic.ValueTimeMark?,
+    val gridShift: Dp
 )

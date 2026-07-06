@@ -1,5 +1,7 @@
 package net.dege.salmon
 
+import androidx.compose.ui.unit.dp
+
 object TunerConfig {
 
     // Tuner functionality related configs:
@@ -9,5 +11,7 @@ object TunerConfig {
     const val PROBABILITY_THRESHOLD = 0.96f
     const val CORRECT_TIME_MS = 1500
     const val LAST_DETECT_TIME_MS = 4000
-
+    const val GRID_FLOW_UPDATE_RATE_MS = 100
+    const val GRID_FLOW_STEP_DP = 1
+    const val GRID_SIZE_DP = 25
 }

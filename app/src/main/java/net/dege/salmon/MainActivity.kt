@@ -13,6 +13,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import net.dege.salmon.ui.theme.SalmonTheme
+import java.util.Timer
+import java.util.TimerTask
+import kotlin.concurrent.thread
 import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
@@ -23,6 +26,7 @@ class MainActivity : ComponentActivity() {
         if (isGranted) {
             startTuner()
             startTunerInactivityLimit()
+            startGridFlow()
         }
         else {
             // If no mic access, no tuner app!
@@ -46,6 +50,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    fun startGridFlow() {
+        Timer().schedule(
+            object : TimerTask() {
+                override fun run() {
+                    viewModel.updateGridShift()
+                }
+            },
+            0,
+            TunerConfig.GRID_FLOW_UPDATE_RATE_MS.toLong()
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -56,6 +72,7 @@ class MainActivity : ComponentActivity() {
             ) == PackageManager.PERMISSION_GRANTED -> {
                 startTuner()
                 startTunerInactivityLimit()
+                startGridFlow()
             }
             else -> {
                 requestPermissionLauncher.launch(

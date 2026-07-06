@@ -2,6 +2,7 @@ package net.dege.salmon
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
@@ -93,6 +94,12 @@ class TunerViewModel : ViewModel() {
                 _tunerState.value = _tunerState.value.copy(lastDetectionTime = null)
             }
         }
+    }
+
+    fun updateGridShift() {
+        val newGridShift = ((_tunerState.value.gridShift.value.toInt() +
+                TunerConfig.GRID_FLOW_STEP_DP) % TunerConfig.GRID_SIZE_DP).dp
+        _tunerState.value = _tunerState.value.copy(gridShift = newGridShift)
     }
 
     // Tuner gets audio, runs pitch (freq) detection. If detects
