@@ -1,6 +1,7 @@
 package net.dege.salmon
 
 import android.content.pm.PackageManager
+import android.media.Image
 import android.widget.Switch
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -21,6 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -275,6 +281,7 @@ fun TuningSliderSection(
                 }
             }
         }
+        // TODO: When false, slowly return back to center instead of teleporting.
     }
 }
 
@@ -284,8 +291,7 @@ fun FooterSection(
     viewModel: TunerViewModel
 ) {
     Column(modifier = modifier
-        .fillMaxSize()
-        .background(Color.DarkGray),
+        .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround
     ) {
@@ -296,37 +302,67 @@ fun FooterSection(
         }
     }
 }
-
 @Composable
 fun TunerScreen(viewModel: TunerViewModel) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Box(
+        modifier = Modifier.fillMaxSize(),
     ) {
-        // title section
-        TitleSection(
-            modifier = Modifier.weight(1f),
-            viewModel
-        )
+        // Background and Main Content Layout
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.DarkGray),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+            TitleSection(
+                modifier = Modifier.weight(1f),
+                viewModel
+            )
 
-        // Tuning slider
-        TuningSliderSection(
-            modifier = Modifier.weight(3f),
-            viewModel
-        )
+            TuningSliderSection(
+                modifier = Modifier.weight(3f),
+                viewModel
+            )
 
-        // note display section
-        NoteDisplaySection(
-            modifier = Modifier.weight(5f),
-            viewModel
-        )
+            NoteDisplaySection(
+                modifier = Modifier.weight(5f),
+                viewModel
+            )
 
-        // Start over button. Maybe settings?
-        FooterSection(
-            modifier = Modifier.weight(1f),
-            viewModel
-        )
+            // Empty placeholder weight for footer.
+            Spacer(modifier = Modifier.weight(1f))
+        }
+
+        // Guitar Headstock Image
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(1f),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            // TODO: Shorten image import.
+            androidx.compose.foundation.Image(
+                painter = painterResource(R.drawable.guitar_headstock_demo),
+                contentDescription = ""
+            )
+        }
+
+        // Footer Section
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(2f),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            // Keep the same proportional height matching the Column's empty spacer
+            FooterSection(
+                modifier = Modifier
+                    // Space of footer is 1f weight out of 10f.
+                    // Therefore, footer is 10% of the height.
+                    .fillMaxHeight(0.1f),
+                viewModel
+            )
+        }
     }
 }
