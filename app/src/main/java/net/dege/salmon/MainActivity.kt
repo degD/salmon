@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
+import net.dege.salmon.ui.settings.SettingsStore
 import net.dege.salmon.ui.theme.SalmonTheme
 import java.util.Timer
 import java.util.TimerTask
@@ -59,6 +60,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        SettingsStore.init(this)
 
         when {
             ContextCompat.checkSelfPermission(

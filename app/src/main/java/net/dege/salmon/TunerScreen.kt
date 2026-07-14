@@ -10,7 +10,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,16 +17,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import net.dege.salmon.ui.settings.SettingsSheet
 import net.dege.salmon.ui.theme.*
 import kotlin.math.abs
+import kotlin.math.cos
 import kotlin.math.round
+import kotlin.math.sin
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -247,6 +252,7 @@ fun TuningSection(
     viewModel: TunerViewModel
 ) {
     val state = viewModel.tunerState.value
+    val settings = viewModel.tunerSettings.value
     val hasDetection = state.lastDetectionTime != null
     val cents = if (hasDetection) state.centsOffset.coerceIn(-100f, 100f) else 0f
     val noteName = state.selectedNote ?: ""
@@ -278,7 +284,9 @@ fun TuningSection(
 
         val centerMarkerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
 
-        FlowingGrid(viewModel = viewModel)
+        if (settings.showGrid) {
+            FlowingGrid(viewModel = viewModel)
+        }
 
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -349,7 +357,7 @@ fun TuningSection(
                 )
             } else {
                 Text(
-                    text = "—",
+                    text = "\u2014",
                     style = MaterialTheme.typography.displaySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
                     textAlign = TextAlign.Center,
@@ -373,7 +381,7 @@ fun TuningSection(
                 )
             } else {
                 Text(
-                    text = "—\u00A2",
+                    text = "\u2014\u00A2",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
                 )
@@ -385,20 +393,21 @@ fun TuningSection(
 @Composable
 fun FooterSection(
     modifier: Modifier = Modifier,
-    viewModel: TunerViewModel
+    viewModel: TunerViewModel,
+    onSettingsClick: () -> Unit
 ) {
     val state = viewModel.tunerState.value
+
+    val iconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f)
 
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface
     ) {
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 20.dp)
         ) {
             val statusText = when {
                 state.mode == TunerMode.AUTO -> "Auto-detecting"
@@ -408,14 +417,39 @@ fun FooterSection(
             Text(
                 text = statusText,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.CenterStart)
             )
+
+            IconButton(
+                onClick = onSettingsClick,
+                modifier = Modifier.align(Alignment.Center)
+            ) {
+                Canvas(Modifier.size(20.dp)) {
+                    val cx = size.width / 2f
+                    val cy = size.height / 2f
+                    val outerR = size.width * 0.38f
+                    val innerR = size.width * 0.14f
+                    val toothLen = size.width * 0.13f
+                    drawCircle(iconColor, outerR, style = Stroke(1.5.dp.toPx()))
+                    drawCircle(iconColor, innerR)
+                    for (i in 0..3) {
+                        val angle = i * (Math.PI / 2).toFloat()
+                        val x1 = cx + outerR * cos(angle)
+                        val y1 = cy + outerR * sin(angle)
+                        val x2 = cx + (outerR + toothLen) * cos(angle)
+                        val y2 = cy + (outerR + toothLen) * sin(angle)
+                        drawLine(iconColor, Offset(x1, y1), Offset(x2, y2), 1.5.dp.toPx())
+                    }
+                }
+            }
 
             OutlinedButton(
                 onClick = { viewModel.restoreDefaults() },
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = MaterialTheme.colorScheme.primary
-                )
+                ),
+                modifier = Modifier.align(Alignment.CenterEnd)
             ) {
                 Text(
                     text = "Start Over",
@@ -428,6 +462,19 @@ fun FooterSection(
 
 @Composable
 fun TunerScreen(viewModel: TunerViewModel) {
+    var showSettings by remember { mutableStateOf(false) }
+    val settings = viewModel.tunerSettings.value
+    val state = viewModel.tunerState.value
+    val haptic = LocalHapticFeedback.current
+
+    val prevCorrect = remember { state.isCorrect }
+    val justCorrected = state.isCorrect.zip(prevCorrect) { c, p -> c && !p }
+    if (justCorrected.any { it } && settings.hapticFeedback) {
+        LaunchedEffect(state.isCorrect) {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -451,7 +498,8 @@ fun TunerScreen(viewModel: TunerViewModel) {
 
             FooterSection(
                 modifier = Modifier.weight(1f),
-                viewModel = viewModel
+                viewModel = viewModel,
+                onSettingsClick = { showSettings = true }
             )
         }
 
@@ -466,6 +514,29 @@ fun TunerScreen(viewModel: TunerViewModel) {
                 contentDescription = null,
                 modifier = Modifier.alpha(0.3f)
             )
+        }
+    }
+
+    if (showSettings) {
+        Dialog(
+            onDismissRequest = { showSettings = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.onBackground
+            ) {
+                SettingsSheet(
+                    settings = settings,
+                    onSettingsChange = { viewModel.updateSettings(it) },
+                    onDismiss = { showSettings = false },
+                    onResetDefaults = {
+                        viewModel.resetAll()
+                        showSettings = false
+                    }
+                )
+            }
         }
     }
 }

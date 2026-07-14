@@ -1,15 +1,14 @@
 package net.dege.salmon
 
+import net.dege.salmon.ui.settings.TuningPreset
+
 data class TunerSettings(
-    val darkTheme: Boolean,
-    val isCorrectThreshold: Float,
-    val simplifyCentsDisplay: Boolean,
-    val simplificationFactor: Int,
+    val referencePitch: Float = 440f,
+    val correctThreshold: Float = 15f,
+    val tuningPreset: TuningPreset = TuningPreset.STANDARD,
+    val autoMode: Boolean = true,
+    val showGrid: Boolean = true,
+    val hapticFeedback: Boolean = false,
 )
 
-val defaultSettings: TunerSettings = TunerSettings(
-    true,
-    isCorrectThreshold = 15f,
-    false,
-    0
-)
+val defaultSettings: TunerSettings = TunerSettings()
