@@ -4,18 +4,18 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import net.dege.salmon.ui.theme.SalmonTheme
 import java.util.Timer
 import java.util.TimerTask
-import kotlin.concurrent.thread
 import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
@@ -27,20 +27,14 @@ class MainActivity : ComponentActivity() {
             startTuner()
             startTunerInactivityLimit()
             startGridFlow()
-        }
-        else {
-            // If no mic access, no tuner app!
+        } else {
             finishAndRemoveTask()
         }
     }
 
     fun startTuner() {
-        TunerFunctionality().startTuner {
-            pitch, probability ->
-                viewModel.updateIncomingFrequency(
-                    pitch,
-                    probability
-                )
+        TunerFunctionality().startTuner { pitch, probability ->
+            viewModel.updateIncomingFrequency(pitch, probability)
         }
     }
 
@@ -64,6 +58,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
         when {
             ContextCompat.checkSelfPermission(
@@ -75,15 +70,15 @@ class MainActivity : ComponentActivity() {
                 startGridFlow()
             }
             else -> {
-                requestPermissionLauncher.launch(
-                    android.Manifest.permission.RECORD_AUDIO
-                )
+                requestPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
             }
         }
 
         setContent {
             SalmonTheme {
-                TunerScreen(viewModel)
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    TunerScreen(viewModel)
+                }
             }
         }
     }
