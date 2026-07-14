@@ -2,9 +2,9 @@ package net.dege.salmon.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val SalmonPrimary = Color(0xFFE87A5D)
+val SalmonPrimary = Color(0xFFFF6F4F)
 val SalmonOnPrimary = Color.White
-val SalmonPrimaryContainer = Color(0xFF4A1C0E)
+val SalmonPrimaryContainer = Color(0xFF5C1A0A)
 val SalmonOnPrimaryContainer = Color(0xFFFFDBD0)
 
 val SalmonSecondary = Color(0xFFF4A261)
@@ -36,7 +36,28 @@ val SalmonOutlineVariant = Color(0xFF2E2E30)
 
 val SalmonInverseSurface = Color(0xFFF2F2F7)
 val SalmonInverseOnSurface = Color(0xFF1C1C1E)
-val SalmonInversePrimary = Color(0xFFB54A30)
+val SalmonInversePrimary = Color(0xFFC94A30)
+
+val SalmonLightPrimaryContainer = Color(0xFFFFEDE6)
+val SalmonLightOnPrimaryContainer = Color(0xFF5C1500)
+val SalmonLightSecondaryContainer = Color(0xFFFFEDE0)
+val SalmonLightOnSecondaryContainer = Color(0xFF2D1500)
+val SalmonLightTertiaryContainer = Color(0xFFFFF0D0)
+val SalmonLightOnTertiaryContainer = Color(0xFF2D2100)
+
+val SalmonLightBackground = Color(0xFFF2F2F7)
+val SalmonLightOnBackground = Color(0xFF1C1C1E)
+val SalmonLightSurface = Color(0xFFFFFFFF)
+val SalmonLightOnSurface = Color(0xFF1C1C1E)
+val SalmonLightSurfaceVariant = Color(0xFFE5E5EA)
+val SalmonLightOnSurfaceVariant = Color(0xFF48484A)
+val SalmonLightOutline = Color(0xFFD1D1D6)
+val SalmonLightOutlineVariant = Color(0xFFE5E5EA)
+val SalmonLightSurfaceContainerHighest = Color(0xFFE5E5EA)
+val SalmonLightSurfaceContainerHigh = Color(0xFFE9E9EC)
+val SalmonLightSurfaceContainer = Color(0xFFEDEDF0)
+val SalmonLightSurfaceContainerLow = Color(0xFFF0F0F3)
+val SalmonLightSurfaceContainerLowest = Color(0xFFFFFFFF)
 
 val TunePerfect = Color(0xFF34C759)
 val TuneClose = Color(0xFFFFD60A)

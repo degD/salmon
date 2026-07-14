@@ -6,6 +6,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import net.dege.salmon.ui.settings.SettingsStore
 import net.dege.salmon.ui.settings.TuningPreset
+import net.dege.salmon.ui.theme.AppTheme
 import net.dege.salmon.tableOfFreq
 import kotlin.math.abs
 import kotlin.math.log2
@@ -147,6 +148,9 @@ class TunerViewModel : ViewModel() {
         if (settings.tuningPreset != old.tuningPreset) {
             applyPresetNotes()
         }
+        if (settings.themeMode != old.themeMode) {
+            AppTheme.themeMode = settings.themeMode
+        }
     }
 
     private fun applyPresetNotes() {
@@ -167,6 +171,7 @@ class TunerViewModel : ViewModel() {
         _settings.value = TunerSettings()
         _tunerState.value = defaultTunerState
         SettingsStore.save(_settings.value)
+        AppTheme.themeMode = _settings.value.themeMode
         applyPersistedMode()
     }
 }

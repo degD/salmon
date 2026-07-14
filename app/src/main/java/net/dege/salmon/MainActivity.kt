@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import net.dege.salmon.ui.settings.SettingsStore
+import net.dege.salmon.ui.theme.AppTheme
 import net.dege.salmon.ui.theme.SalmonTheme
 import java.util.Timer
 import java.util.TimerTask
@@ -61,6 +62,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         SettingsStore.init(this)
+        AppTheme.themeMode = SettingsStore.load().themeMode
 
         when {
             ContextCompat.checkSelfPermission(
