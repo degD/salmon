@@ -298,10 +298,10 @@ fun TuningSliderSection(
         ) {
             Box(Modifier
                 .size(40.dp)
-                .background(SalmonColor4, CircleShape),
+                .background(SalmonColor6, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Text(offsetText)
+                Text(offsetText, color = SalmonColor1)
             }
         }
 
