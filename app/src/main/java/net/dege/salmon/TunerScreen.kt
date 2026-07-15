@@ -44,7 +44,7 @@ fun TitleSection(
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.surface
+        color = MaterialTheme.colorScheme.background
     ) {
         Row(
             modifier = Modifier
@@ -226,7 +226,7 @@ fun FlowingGrid(
             }
         }
 
-        for (i in 0..numOfCellsHeightHalf + 1) {
+        for (i in 0..numOfCellsHeightHalf) {
             drawLine(
                 lineColor,
                 Offset(0f, gridShiftPx + centerH + i * cellSizePx),
@@ -401,7 +401,7 @@ fun FooterSection(
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.surface
+        color = MaterialTheme.colorScheme.background
     ) {
         Box(
             modifier = Modifier
@@ -477,8 +477,8 @@ fun TunerScreen(viewModel: TunerViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.systemBars)
             .background(MaterialTheme.colorScheme.background)
+            .windowInsetsPadding(WindowInsets.systemBars)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TitleSection(
