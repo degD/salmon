@@ -339,11 +339,11 @@ fun TunerScreen(viewModel: TunerViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .zIndex(1f),
-            contentAlignment = Alignment.BottomEnd
+            contentAlignment = Alignment.BottomCenter
         ) {
             // TODO: Shorten image import.
             androidx.compose.foundation.Image(
-                painter = painterResource(R.drawable.guitar_headstock_demo),
+                painter = painterResource(R.drawable.piemaster_gretsch_jet_firebird_headstock2),
                 contentDescription = ""
             )
         }
