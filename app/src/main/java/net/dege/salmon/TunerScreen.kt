@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +35,11 @@ import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker.checkSelfPermission
 import kotlinx.coroutines.flow.Flow
+import net.dege.salmon.ui.theme.SalmonColor1
+import net.dege.salmon.ui.theme.SalmonColor2
+import net.dege.salmon.ui.theme.SalmonColor3
+import net.dege.salmon.ui.theme.SalmonColor4
+import net.dege.salmon.ui.theme.SalmonColor5
 import java.util.jar.Manifest
 import kotlin.concurrent.thread
 import kotlin.math.round
@@ -46,7 +52,7 @@ fun TitleSection(
     val state = viewModel.tunerState.value
     Row(modifier = modifier
         .fillMaxSize()
-        .background(Color.DarkGray)
+        .background(SalmonColor3)
         .padding(4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -56,19 +62,43 @@ fun TitleSection(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Salmon")
+            Text(
+                "Salmon",
+                fontSize = 40.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = SalmonColor1,
+                modifier = Modifier.padding(16.dp, 0.dp)
+            )
+            // TODO: Create font types objects (Like colors and themes)
         }
-        Row(
+        Column(
             Modifier,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("AUTO")
             Switch(
                 state.mode == TunerMode.AUTO,
                 {
                     viewModel.toggleMode()
-                })
+                },
+                colors = SwitchColors(
+                    SalmonColor4, SalmonColor1,
+                    Color.Transparent, SalmonColor4,
+                    SalmonColor3, SalmonColor2,
+                    Color.Transparent, SalmonColor4,
+                    SalmonColor4, SalmonColor2,
+                    SalmonColor4, SalmonColor4,
+                    SalmonColor4, SalmonColor2,
+                    SalmonColor4, SalmonColor4
+                )
+                // TODO: No way to make it cleaner? Maybe create separate components for each section.
+            )
+            Text(
+                "AUTO",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Light,
+                color = SalmonColor1,
+            )
+
         }
     }
 }
@@ -88,12 +118,12 @@ fun NoteButton(
         .size(64.dp)
         .padding(8.dp)
         .background(
-            if (note != state.selectedNote) Color.Yellow else Color.Magenta,
+            SalmonColor2,
             CircleShape,
         )
         .border(
-            if (isNoteCorrect) 4.dp else 0.dp,
-            Color.Green,
+            if (isNoteCorrect) 2.dp else 0.dp,
+            if (isNoteCorrect) SalmonColor5 else Color.Transparent,
             CircleShape
         )
         .clickable {
@@ -102,7 +132,10 @@ fun NoteButton(
         },
         contentAlignment = Alignment.Center,
     ) {
-        Text(note)
+        Text(
+            note,
+            color = if (note != state.selectedNote) SalmonColor4 else SalmonColor1
+        )
     }
 }
 
@@ -139,7 +172,7 @@ fun NoteDisplaySection(
     Row(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.DarkGray),
+            .background(SalmonColor3),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Notes on the left
@@ -181,7 +214,7 @@ fun FlowingGrid(
         val centerH = size.height / 2
 
         // TODO: Later move to Color object.
-        val lineColor = Color.LightGray.copy(alpha = 0.2f)
+        val lineColor = SalmonColor4.copy(alpha = 0.2f)
 
         // Draw grid vertical lines.
         for (i in 0..numOfCellsWidthHalf) {
@@ -232,7 +265,7 @@ fun TuningSliderSection(
 
     BoxWithConstraints(modifier = modifier
         .fillMaxSize()
-        .background(Color.Black),
+        .background(SalmonColor3),
         contentAlignment = Alignment.Center,
     ) {
         val boxWidth = maxWidth
@@ -261,7 +294,7 @@ fun TuningSliderSection(
         ) {
             Box(Modifier
                 .size(40.dp)
-                .background(Color.Gray, CircleShape),
+                .background(SalmonColor4, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(offsetText)
@@ -278,10 +311,10 @@ fun TuningSliderSection(
             ) {
                 Box(Modifier
                     .size(40.dp)
-                    .background(Color.Gray, CircleShape),
+                    .background(SalmonColor2, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(selectedNote)
+                    Text(selectedNote, color = SalmonColor4)
                 }
             }
         }
@@ -299,9 +332,15 @@ fun FooterSection(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround
     ) {
-        Button({
-            viewModel.restoreDefaults()
-        }) {
+        Button(
+            onClick = {
+                viewModel.restoreDefaults()
+            },
+            colors = ButtonColors(
+                SalmonColor2, SalmonColor4,
+                SalmonColor2, SalmonColor4
+            )
+        ) {
             Text("Start Over")
         }
     }
@@ -315,7 +354,7 @@ fun TunerScreen(viewModel: TunerViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.DarkGray),
+                .background(SalmonColor3),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
