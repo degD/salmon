@@ -40,9 +40,12 @@ import net.dege.salmon.ui.theme.SalmonColor2
 import net.dege.salmon.ui.theme.SalmonColor3
 import net.dege.salmon.ui.theme.SalmonColor4
 import net.dege.salmon.ui.theme.SalmonColor5
+import net.dege.salmon.ui.theme.SalmonColor6
 import java.util.jar.Manifest
 import kotlin.concurrent.thread
 import kotlin.math.round
+
+// TODO: Manage imports...
 
 @Composable
 fun TitleSection(
@@ -149,7 +152,7 @@ fun NotesColumn(
     Column(
         modifier = modifier
             .fillMaxHeight(0.6f)
-            .absoluteOffset(0.dp, 8.dp),
+            .absoluteOffset(0.dp, (-12).dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround
     ) {
@@ -236,6 +239,7 @@ fun FlowingGrid(
 
         // Draw grid horizontal lines.
         for (i in 0..numOfCellsHeightHalf) {
+            // TODO: First horizontal grid line appears late.
             drawLine(
                 lineColor,
                 Offset(0f, gridShiftPx + centerH + i * cellSizePx),
@@ -348,7 +352,11 @@ fun FooterSection(
 @Composable
 fun TunerScreen(viewModel: TunerViewModel) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .background(SalmonColor6)
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.safeGestures)
+        // TODO: Make sure that inset usage is correct.
     ) {
         // Background and Main Content Layout
         Column(
