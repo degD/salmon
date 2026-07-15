@@ -86,7 +86,7 @@ fun NoteButton(
 
     Box(modifier = modifier
         .size(64.dp)
-        .padding(4.dp)
+        .padding(8.dp)
         .background(
             if (note != state.selectedNote) Color.Yellow else Color.Magenta,
             CircleShape,
@@ -113,8 +113,10 @@ fun NotesColumn(
     viewModel: TunerViewModel
 ) {
     val state = viewModel.tunerState.value
-    Column(modifier = modifier
-        .fillMaxSize(),
+    Column(
+        modifier = modifier
+            .fillMaxHeight(0.6f)
+            .absoluteOffset(0.dp, 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround
     ) {
@@ -134,9 +136,11 @@ fun NoteDisplaySection(
     modifier: Modifier = Modifier,
     viewModel: TunerViewModel
 ) {
-    Row(modifier = modifier
-        .fillMaxSize()
-        .background(Color.DarkGray),
+    Row(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.DarkGray),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         // Notes on the left
         NotesColumn(
@@ -198,7 +202,7 @@ fun FlowingGrid(
         }
 
         // Draw grid horizontal lines.
-        for (i in 0..numOfCellsHeightHalf+1) {
+        for (i in 0..numOfCellsHeightHalf) {
             drawLine(
                 lineColor,
                 Offset(0f, gridShiftPx + centerH + i * cellSizePx),
@@ -339,11 +343,15 @@ fun TunerScreen(viewModel: TunerViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .zIndex(1f),
-            contentAlignment = Alignment.BottomEnd
+            contentAlignment = Alignment.BottomCenter
         ) {
             // TODO: Shorten image import.
             androidx.compose.foundation.Image(
-                painter = painterResource(R.drawable.guitar_headstock_demo),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .absoluteOffset(2.dp),
+                alignment = Alignment.BottomCenter,
+                painter = painterResource(R.drawable.piemaster_gretsch_jet_firebird_headstock2),
                 contentDescription = ""
             )
         }
