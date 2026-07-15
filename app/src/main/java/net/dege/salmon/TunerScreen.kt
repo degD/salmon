@@ -199,8 +199,7 @@ fun FlowingGrid(
     modifier: Modifier = Modifier,
     viewModel: TunerViewModel
 ) {
-    val onSurface = MaterialTheme.colorScheme.onSurface
-    val lineColor = remember { onSurface.copy(alpha = 0.04f) }
+    val lineColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
 
     Canvas(modifier = modifier.fillMaxSize()) {
         val gridShiftPx = viewModel.tunerState.value.gridShift.toPx()
@@ -260,7 +259,7 @@ fun TuningSection(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         val gaugeWidth = maxWidth - 80.dp
