@@ -30,7 +30,8 @@ val defaultTunerState: TunerState = TunerState(
     0f,
     null,
     null,
-    0.dp
+    0.dp,
+    false
 )
 
 data class TunerState(
@@ -43,5 +44,6 @@ data class TunerState(
     val centsOffset: Float,
     val correctStartTime: TimeSource.Monotonic.ValueTimeMark?,
     val lastDetectionTime: TimeSource.Monotonic.ValueTimeMark?,
-    val gridShift: Dp
+    val gridShift: Dp,
+    val isPlayingAudio: Boolean
 )

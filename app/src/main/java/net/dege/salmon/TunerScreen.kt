@@ -114,6 +114,7 @@ fun NoteButton(
 ) {
     val state = viewModel.tunerState.value
     val noteIndex = state.notes.indexOf(note)
+    val noteFreq = tableOfFreq[note]
     val isNoteCorrect = if (noteIndex >= 0)
         state.isCorrect[noteIndex] else false
 
@@ -132,6 +133,8 @@ fun NoteButton(
         .clickable {
             viewModel.setSelectedNote(note)
             viewModel.setModeManual()
+            viewModel.playNote(freq = noteFreq ?: 0f)
+            // Frequency of 0f means no wave at all.
         },
         contentAlignment = Alignment.Center,
     ) {

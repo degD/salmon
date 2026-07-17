@@ -23,6 +23,8 @@ class TunerViewModel : ViewModel() {
     private val _settings = mutableStateOf(defaultSettings)
     val tunerSettings = _settings
 
+    private val notePlayer = NotePlayer()
+
     fun setSelectedNote(note: String) {
         if (note in tableOfFreq) {
             _tunerState.value = _tunerState.value.copy(selectedNote = note)
@@ -105,8 +107,11 @@ class TunerViewModel : ViewModel() {
     // Tuner gets audio, runs pitch (freq) detection. If detects
     // pitch, runs this function to update the state.
     fun updateIncomingFrequency(freq: Float, prob: Float) {
+        val isPlayingAudio = _tunerState.value.isPlayingAudio
         val correctThreshold = _settings.value.isCorrectThreshold
-        if (prob >= TunerConfig.PROBABILITY_THRESHOLD) {
+        // TODO: Shall I use "tunerState" vs "_tunerState" for reading variables?
+
+        if (!isPlayingAudio && prob >= TunerConfig.PROBABILITY_THRESHOLD) {
 
             // If time past since last detection is more than LAST_DETECT_TIME_MS,
             // reset the cursor offset.
@@ -150,5 +155,17 @@ class TunerViewModel : ViewModel() {
             }
         }
     }
+
+    private fun setIsPlayingAudio(isPlayingAudio: Boolean) {
+        _tunerState.value = _tunerState.value.copy(isPlayingAudio = isPlayingAudio)
+    }
+
+    fun playNote(freq: Float) {
+        setIsPlayingAudio(true)
+        notePlayer.playNote(freq) { setIsPlayingAudio(false) }
+        println("Playing note with frequency: $freq")
+    }
+
+    // TODO: Write function documentations...
 }
 
