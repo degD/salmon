@@ -1,8 +1,11 @@
 package net.dege.salmon
 
+import android.app.Application
+import android.media.MediaPlayer
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
@@ -16,14 +19,20 @@ import kotlin.math.log2
 import kotlin.math.round
 import kotlin.time.TimeSource.Monotonic.markNow
 
-class TunerViewModel : ViewModel() {
+// TODO: Research to update like
+//  class TunerViewModel(application: Application) : AndroidViewModel(application) {
+//  to be able to access context
+
+class TunerViewModel(application: Application) : AndroidViewModel(application) {
     private val _tunerState = mutableStateOf(defaultTunerState)
     val tunerState: State<TunerState> = _tunerState
 
     private val _settings = mutableStateOf(defaultSettings)
     val tunerSettings = _settings
 
-    private val notePlayer = NotePlayer()
+    private val _notePlayer = NotePlayer()
+
+    private val _correctPlayer = PlayCorrect(application)
 
     fun setSelectedNote(note: String) {
         if (note in tableOfFreq) {
@@ -147,6 +156,12 @@ class TunerViewModel : ViewModel() {
                         val newIsCorrect = _tunerState.value.isCorrect.toMutableList()
                         newIsCorrect[noteIndex] = true
                         _tunerState.value = _tunerState.value.copy(isCorrect = newIsCorrect)
+
+                        // Reset correct checking variables.
+                        _tunerState.value = _tunerState.value.copy(correctStartTime = null)
+
+                        // Play correct sound.
+                        playCorrect()
                     }
                 }
                 else {
@@ -160,9 +175,15 @@ class TunerViewModel : ViewModel() {
         _tunerState.value = _tunerState.value.copy(isPlayingAudio = isPlayingAudio)
     }
 
+    private fun playCorrect() {
+        setIsPlayingAudio(true)
+        _correctPlayer.playCorrectSound { setIsPlayingAudio(false) }
+        println("Playing correct audio...")
+    }
+
     fun playNote(freq: Float) {
         setIsPlayingAudio(true)
-        notePlayer.playNote(freq) { setIsPlayingAudio(false) }
+        _notePlayer.playNote(freq) { setIsPlayingAudio(false) }
         println("Playing note with frequency: $freq")
     }
 

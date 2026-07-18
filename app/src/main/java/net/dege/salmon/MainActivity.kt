@@ -2,6 +2,7 @@ package net.dege.salmon
 
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -28,9 +29,7 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            startTuner()
-            startTunerInactivityLimit()
-            startGridFlow()
+            initTuner()
         }
         else {
             // If no mic access, no tuner app!
@@ -66,6 +65,14 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    private fun initTuner() {
+        startTuner()
+        startTunerInactivityLimit()
+        startGridFlow()
+    }
+
+    // TODO: Some functions may have to be private.
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
@@ -83,9 +90,7 @@ class MainActivity : ComponentActivity() {
                 this,
                 android.Manifest.permission.RECORD_AUDIO
             ) == PackageManager.PERMISSION_GRANTED -> {
-                startTuner()
-                startTunerInactivityLimit()
-                startGridFlow()
+                initTuner()
             }
             else -> {
                 requestPermissionLauncher.launch(
@@ -102,11 +107,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun MainActivityPreview() {
-    val viewModel = TunerViewModel()
-    SalmonTheme {
-        TunerScreen(viewModel)
-    }
-}
