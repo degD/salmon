@@ -9,24 +9,6 @@ This app is inspired a lot from open-source tuners like
 daTuner and gStrings. But the main inspiration has come 
 from the GuitarTuna closed source tuner app.
 
-## Disclaimer
-
-This app is 90% complete, however completing the remaining 10% is 
-the most boring and time consuming part of development.
-Therefore, I will leave it there for a while. You can complete it
-or fork it you want, I would be very glad if you do, and put it on
-F-Droid! 
-
-What's left:
-* Theme overhaul, UX improvements.
-* Adding a _settings_ menu.
-* Tuner tunings.
-* Fixing TODOs I left here and there.
-
-As I said, remaining parts are mostly trivial feature-wise.
-AI agents could also be used to complete those remaining bits,
-but please make sure they don't break anything.
-
 ## Development
 
 1. Grab the source code and clone.
@@ -110,6 +92,13 @@ Areas where help is particularly useful:
 * UI/UX design
 * Device compatibility testing
 * Documentation
+
+## Resources
+
+* [Correct audio](https://freesound.org/people/StavSounds/sounds/546084/)
+* [Guitar headstock source](https://freesvg.org/piemaster-gretsch-jet-firebird)
+* [Color palette](https://colorhunt.co/palette/ff9e20215e611d2128f4f2f2)
+* Icon designed by me
 
 ## License
 
