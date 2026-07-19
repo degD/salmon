@@ -1,7 +1,5 @@
 package net.dege.salmon
 
-import androidx.compose.ui.unit.dp
-
 object TunerConfig {
 
     // Tuner functionality related configs:

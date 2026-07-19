@@ -1,10 +1,7 @@
 package net.dege.salmon
 
-import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import kotlin.concurrent.thread
 import kotlin.math.PI
 import kotlin.math.sin

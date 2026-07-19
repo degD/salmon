@@ -4,7 +4,6 @@ import be.tarsos.dsp.io.android.AudioDispatcherFactory
 import be.tarsos.dsp.pitch.PitchDetectionHandler
 import be.tarsos.dsp.pitch.PitchProcessor
 import be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm
-import kotlinx.coroutines.delay
 import kotlin.concurrent.fixedRateTimer
 import kotlin.concurrent.thread
 

@@ -1,27 +1,13 @@
 package net.dege.salmon
 
 import android.app.Application
-import android.media.MediaPlayer
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.dege.salmon.tableOfFreq
-import kotlin.collections.listOf
 import kotlin.math.abs
 import kotlin.math.log2
-import kotlin.math.round
 import kotlin.time.TimeSource.Monotonic.markNow
-
-// TODO: Research to update like
-//  class TunerViewModel(application: Application) : AndroidViewModel(application) {
-//  to be able to access context
 
 class TunerViewModel(application: Application) : AndroidViewModel(application) {
     private val _tunerState = mutableStateOf(defaultTunerState)
