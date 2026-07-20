@@ -5,6 +5,8 @@ Most tuner apps today have evolved into subscription platforms,
 requiring internet connectivity, accounts, advertisements, or 
 cloud services for functionality that should work entirely on-device.
 
+<img width="400" alt="Screenshot_20260720_201719" src="https://github.com/user-attachments/assets/85890205-72eb-4847-be39-dd674228e53d" />
+
 ## Disclaimer
 
 While this app is "ready in principle", it may not be "fun to use".
