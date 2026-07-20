@@ -1,5 +1,7 @@
 package net.dege.salmon
 
+import be.tarsos.dsp.GainProcessor
+import be.tarsos.dsp.filters.LowPassFS
 import be.tarsos.dsp.io.android.AudioDispatcherFactory
 import be.tarsos.dsp.pitch.PitchDetectionHandler
 import be.tarsos.dsp.pitch.PitchProcessor
@@ -25,6 +27,13 @@ class TunerFunctionality {
         )
 
         println("Tuner started!")
+
+        // A 400Hz cutoff preserves all standard guitar fundamentals (E4 is ~329Hz)
+        // while stripping the higher harmonics that confuse the algorithm, especially
+        // at lower frequencies like E2...
+        audioDispatcher.addAudioProcessor(LowPassFS(400f, _sampleRate.toFloat()))
+
+        audioDispatcher.addAudioProcessor(GainProcessor(TunerConfig.TUNER_FUNC_AMPLIFICATION_FACTOR))
         audioDispatcher.addAudioProcessor(audioProcessor)
         thread(name = "tuning-thread") {
             audioDispatcher.run()

@@ -2,6 +2,7 @@ package net.dege.salmon
 
 import android.content.Context
 import android.media.SoundPool
+import kotlin.concurrent.thread
 
 class PlayCorrect(context: Context) {
 
@@ -25,8 +26,11 @@ class PlayCorrect(context: Context) {
             1f
         )
 
-        println("Just before the callback...")
-        callback()
+        // That's necessary because soundPool plays audio asynchronously.
+        thread {
+            Thread.sleep(1000)
+            callback()
+        }
     }
 
 }

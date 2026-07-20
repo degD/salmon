@@ -71,16 +71,19 @@ class TunerViewModel(application: Application) : AndroidViewModel(application) {
     // Used to get an easier to understand representation of tuning state.
     // See https://en.wikipedia.org/wiki/Cent_(music)#Use for more details on calculation.
     // 100 cents is the distance to another semitone. E to F is 100 cents, for example.
-    // TODO: It can be further divided by a "simplifier" number for easier representation.
-    //  For example, it seems that GuitarTuna divides that number by "5".
     private fun getPitchDeviation(
         freqDetected: Float,
         freqTarget: Float,
     ): Float {
         // TODO: In future, may update state to store a setting about sensitivity.
         //  Can even represent in float rather than int.
+        val prevCents = _tunerState.value.centsOffset
         val cents = 1200 * log2(freqDetected / freqTarget)
-        return cents
+
+        // Use an exponential moving average to prevent jumping and smooth the needle movement.
+        // SmoothingFactor: 0.1f -> very smooth, 1.0f -> instant.
+        val smoothingFactor = TunerConfig.CENTS_SMOOTHING_FACTOR
+        return prevCents + smoothingFactor * (cents - prevCents)
     }
 
     fun checkLastDetectionTime() {
@@ -153,6 +156,10 @@ class TunerViewModel(application: Application) : AndroidViewModel(application) {
                 else {
                     _tunerState.value = _tunerState.value.copy(correctStartTime = markNow())
                 }
+            }
+            else {
+                // If out of threshold, reset correctStartTime
+                _tunerState.value = _tunerState.value.copy(correctStartTime = null)
             }
         }
     }

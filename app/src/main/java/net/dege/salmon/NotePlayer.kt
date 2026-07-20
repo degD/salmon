@@ -54,7 +54,8 @@ class NotePlayer {
                 amplitude = (numOfSamples - i).toFloat() / fadeRange
             }
 
-            // At 1f amplitude max, audio is not
+            // At 1f amplitude max, audio is not always end at 0, which could
+            // cause popping noise, which is undesired.
             sineArray[i] = (amplitude * sin(i * step)).toFloat()
         }
         return sineArray
@@ -65,8 +66,24 @@ class NotePlayer {
         duration: Float,
         sampleRate: Int
     ): FloatArray {
+        val numOfSamples = (sampleRate * duration).toInt()
         val sineArray = generateSineWaveNote(freq, duration, sampleRate)
-        val squareArray = sineArray.map { x -> if (x > 0) 1f else -1f }
+        val squareArray = sineArray.map { x -> if (x > 0) 0.4f else -0.4f }.toMutableList()
+
+        val fadeRange = (sampleRate * 0.05).toInt()
+        for (i in 0..<numOfSamples) {
+            var amplitude = 1f
+
+            // Fade at start and end by changing amplitude of audio wave.
+            if (i < fadeRange) {
+                amplitude = i.toFloat() / fadeRange
+            }
+            else if (i > numOfSamples - fadeRange) {
+                amplitude = (numOfSamples - i).toFloat() / fadeRange
+            }
+
+            squareArray[i] = (amplitude * squareArray[i])
+        }
         return squareArray.toFloatArray()
     }
 

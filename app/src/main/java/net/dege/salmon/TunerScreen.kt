@@ -33,7 +33,7 @@ fun TitleSection(
     Row(modifier = modifier
         .fillMaxSize()
         .background(SalmonColor3)
-        .padding(4.dp),
+        .padding(16.dp, 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -47,7 +47,6 @@ fun TitleSection(
                 fontSize = 40.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = SalmonColor1,
-                modifier = Modifier.padding(16.dp, 0.dp)
             )
             // TODO: Create font types objects (Like colors and themes)
         }
@@ -256,7 +255,7 @@ fun TuningSliderSection(
         var offsetText = ""
 
         if (lastDetectionTime != null) {
-            offsetText = "${round(state.centsOffset).toInt()}"
+            offsetText = "${round(state.centsOffset / TunerConfig.SIMPLIFYING_FACTOR).toInt()}"
         }
 
         fun convertCentsOffsetToOffsetX(): Dp {
