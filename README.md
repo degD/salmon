@@ -1,13 +1,9 @@
-# Salmon (Working Title)
+# Salmon
 
 A fast, offline-first, open-source guitar tuner for Android.
 Most tuner apps today have evolved into subscription platforms, 
 requiring internet connectivity, accounts, advertisements, or 
 cloud services for functionality that should work entirely on-device.
-
-This app is inspired a lot from open-source tuners like 
-daTuner and gStrings. But the main inspiration has come 
-from the GuitarTuna closed source tuner app.
 
 ## Development
 
@@ -16,23 +12,20 @@ from the GuitarTuna closed source tuner app.
 3. Put TarsosDSP under app/libs.
 4. Start development.
 
-## Goals
+## Features
 
-* Super useful UI
+* Useful UI
 * Real-time microphone input
 * Pitch detection
-* Frequency display
 * Note detection
 * Cents offset visualization
 * Guitar tuning mode (E2 A D G B E4)
-* Dark mode support
 * Offline operation
 
 ## Future Goals
 
 * Alternate tunings
-* Bass guitar support
-* Ukulele support
+* Other instruments support
 * Calibration adjustment (A4 = 432-445 Hz)
 * Noise robustness improvements
 * F-Droid distribution
@@ -40,25 +33,7 @@ from the GuitarTuna closed source tuner app.
 ## Technology Stack (Kotlin)
 
 * Compose UI
-* TarsosDSP for pitch detection (for now)
-
-### Pitch Detection
-
-Initial candidate algorithms:
-
-* YIN
-* McLeod Pitch Method (MPM)
-
-Research candidates:
-
-* Hybrid YIN + Harmonic Analysis
-* Probabilistic pitch tracking
-
-Goals:
-
-* Stable note detection
-* Minimal jitter
-* Robustness against guitar harmonics
+* TarsosDSP for pitch detection (FFT-YIN) 
 
 ## Privacy
 
@@ -81,18 +56,6 @@ Planned release channels:
 
 Google Play publication is undecided.
 
-## Contributing
-
-Contributions, bug reports, and feature requests are welcome.
-
-Areas where help is particularly useful:
-
-* DSP algorithms
-* Android audio testing
-* UI/UX design
-* Device compatibility testing
-* Documentation
-
 ## Resources
 
 * [Correct audio](https://freesound.org/people/StavSounds/sounds/546084/)
@@ -102,4 +65,4 @@ Areas where help is particularly useful:
 
 ## License
 
-Undecided Yet...
+MIT 
