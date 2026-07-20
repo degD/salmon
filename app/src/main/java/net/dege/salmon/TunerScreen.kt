@@ -242,8 +242,7 @@ fun FlowingGrid(
         }
 
         // Draw grid horizontal lines.
-        for (i in 0..numOfCellsHeightHalf) {
-            // TODO: First horizontal grid line appears late.
+        for (i in 0..numOfCellsHeightHalf + 1) {
             drawLine(
                 lineColor,
                 Offset(0f, gridShiftPx + centerH + i * cellSizePx),
