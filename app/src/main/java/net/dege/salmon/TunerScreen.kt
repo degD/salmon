@@ -176,8 +176,6 @@ fun NoteDisplaySection(
     }
 }
 
-var a = 4
-
 @Composable
 fun FlowingGrid(
     modifier: Modifier = Modifier,
@@ -195,7 +193,34 @@ fun FlowingGrid(
         val centerW = size.width / 2
         val centerH = size.height / 2
 
-        // TODO: Later move to Color object.
+        // Draw a line when correct
+        val correctStartTime = viewModel.tunerState.value.correctStartTime
+        var durationMs = correctStartTime?.elapsedNow()?.inWholeMilliseconds ?: 0
+        durationMs = if (durationMs < TunerConfig.CORRECT_TIME_MS) durationMs else TunerConfig.CORRECT_TIME_MS.toLong()
+        val correctLineLength = size.height * durationMs / TunerConfig.CORRECT_TIME_MS
+        val correctLineStart = centerH - correctLineLength / 2
+        val correctLineEnd = centerH + correctLineLength / 2
+        drawLine(
+            SalmonColor1,
+            Offset(centerW, correctLineStart),
+            Offset(centerW, correctLineEnd),
+            strokeWidth = 4.dp.toPx()
+        )
+
+        // Draw a green line after being correct
+        val selectedNote = viewModel.tunerState.value.selectedNote
+        if (selectedNote != null) {
+            val noteIndex = viewModel.tunerState.value.notes.indexOf(selectedNote)
+            if (viewModel.tunerState.value.isCorrect[noteIndex]) {
+                drawLine(
+                    SalmonColor5,
+                    Offset(centerW, 0f),
+                    Offset(centerW, size.height),
+                    strokeWidth = 4.dp.toPx()
+                )
+            }
+        }
+
         val lineColor = SalmonColor4.copy(alpha = 0.2f)
 
         // Draw grid vertical lines.
