@@ -9,6 +9,13 @@ import kotlin.math.abs
 import kotlin.math.log2
 import kotlin.time.TimeSource.Monotonic.markNow
 
+/**
+ * The primary architectural ViewModel managing the state machine of the instrument tuner.
+ * Binds incoming pitch frequencies to mathematical note configurations, updates UI animation
+ * intervals, handles tuning validation, and delegates synthetic note audio processing.
+ *
+ * @param application The global application context used by the underlying AndroidViewModel.
+ */
 class TunerViewModel(application: Application) : AndroidViewModel(application) {
     private val _tunerState = mutableStateOf(defaultTunerState)
     val tunerState: State<TunerState> = _tunerState
@@ -20,6 +27,11 @@ class TunerViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _correctPlayer = PlayCorrect(application)
 
+    /**
+     * Updates the active target note during manual selection modes. Resets validation states.
+     *
+     * @param note The scientific pitch notation identifier (e.g., "E2").
+     */
     fun setSelectedNote(note: String) {
         if (note in tableOfFreq) {
             _tunerState.value = _tunerState.value.copy(selectedNote = note)
@@ -27,6 +39,11 @@ class TunerViewModel(application: Application) : AndroidViewModel(application) {
         _tunerState.value = _tunerState.value.copy(correctStartTime = null)
     }
 
+    /**
+     * Configures the active tracking behavior of the tuner mechanism.
+     *
+     * @param mode The targeted operational strategy ([TunerMode.AUTO] or [TunerMode.MANUAL]).
+     */
     private fun setMode(mode: TunerMode) {
         if (mode == TunerMode.AUTO) {
             _tunerState.value = _tunerState.value.copy(mode = TunerMode.AUTO)
@@ -43,6 +60,9 @@ class TunerViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * Inverts the active evaluation strategy between auto-detection and manual selection.
+     */
     fun toggleMode() {
         if (_tunerState.value.mode == TunerMode.AUTO) {
             setMode(mode = TunerMode.MANUAL)
@@ -52,14 +72,26 @@ class TunerViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * Forces the instrument tracking behavior into static manual selection.
+     */
     fun setModeManual() {
         setMode(mode = TunerMode.MANUAL)
     }
 
+    /**
+     * Resets the presentation architecture state mapping back to configured defaults.
+     */
     fun restoreDefaults() {
         _tunerState.value = defaultTunerState
     }
 
+    /**
+     * Maps an arbitrary raw frequency to the absolute mathematically the closest note string identifier.
+     *
+     * @param freq The active signal pitch in Hertz.
+     * @return The identifier string representing the closest matched musical pitch.
+     */
     private fun getClosestNote(freq: Float): String {
         return _tunerState.value.notes.map {
             Pair(abs(tableOfFreq[it]?.minus(freq) ?: Float.MAX_VALUE), it)
@@ -68,9 +100,14 @@ class TunerViewModel(application: Application) : AndroidViewModel(application) {
         }.second
     }
 
-    // Used to get an easier to understand representation of tuning state.
-    // See https://en.wikipedia.org/wiki/Cent_(music)#Use for more details on calculation.
-    // 100 cents is the distance to another semitone. E to F is 100 cents, for example.
+    /**
+     * Computes the exponential moving average deviation in cents between the input signal and target pitch.
+     * Uses standard logarithmic conversion where 100 cents corresponds to one equal-tempered semitone.
+     *
+     * @param freqDetected The parsed frequency signal received from the microphone layer.
+     * @param freqTarget The perfect fundamental pitch frequency configuration of the musical note.
+     * @return The smoothed offset value bounded in pitch cents.
+     */
     private fun getPitchDeviation(
         freqDetected: Float,
         freqTarget: Float,
@@ -86,6 +123,10 @@ class TunerViewModel(application: Application) : AndroidViewModel(application) {
         return prevCents + smoothingFactor * (cents - prevCents)
     }
 
+    /**
+     * Evaluates time elapsed since the last valid frequency signature packet.
+     * Drops detection states if the silence duration threshold is exceeded.
+     */
     fun checkLastDetectionTime() {
         val lastDetectionTime = _tunerState.value.lastDetectionTime
         if (lastDetectionTime != null) {
@@ -96,14 +137,22 @@ class TunerViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * Increments the drawing bounds offset parameter to drive the background canvas grid flow animation loop.
+     */
     fun updateGridShift() {
         val newGridShift = ((_tunerState.value.gridShift.value.toInt() +
                 TunerConfig.GRID_FLOW_STEP_DP) % TunerConfig.GRID_SIZE_DP).dp
         _tunerState.value = _tunerState.value.copy(gridShift = newGridShift)
     }
 
-    // Tuner gets audio, runs pitch (freq) detection. If detects
-    // pitch, runs this function to update the state.
+    /**
+     * Main entry node processing raw audio evaluation data streams. Performs logarithmic pitch conversion,
+     * applies stability filter smoothing, tracks chronological validation thresholds, and triggers completion feedback.
+     *
+     * @param freq The continuous signal component frequency calculated by the DSP module.
+     * @param prob The statistical likelihood confidence rating of the isolated pitch calculation.
+     */
     fun updateIncomingFrequency(freq: Float, prob: Float) {
         val isPlayingAudio = _tunerState.value.isPlayingAudio
         val correctThreshold = _settings.value.isCorrectThreshold
@@ -164,22 +213,33 @@ class TunerViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * Toggles the audio output flag state lock to prevent concurrent microphone listening
+     * while playing an audio.
+     *
+     * @param isPlayingAudio Set to true to declare that active sound playback is taking place.
+     */
     private fun setIsPlayingAudio(isPlayingAudio: Boolean) {
         _tunerState.value = _tunerState.value.copy(isPlayingAudio = isPlayingAudio)
     }
 
+    /**
+     * Executes the "correct tuning" audio and sets the concurrency lock variables.
+     */
     private fun playCorrect() {
         setIsPlayingAudio(true)
         _correctPlayer.playCorrectSound { setIsPlayingAudio(false) }
         println("Playing correct audio...")
     }
 
+    /**
+     * Triggers dynamic playback generation for the given musical target pitch tone.
+     *
+     * @param freq The specific audio reference frequency to synthesize and write out.
+     */
     fun playNote(freq: Float) {
         setIsPlayingAudio(true)
         _notePlayer.playNote(freq) { setIsPlayingAudio(false) }
         println("Playing note with frequency: $freq")
     }
-
-    // TODO: Write function documentations...
 }
-

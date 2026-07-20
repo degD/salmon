@@ -15,6 +15,11 @@ import java.util.Timer
 import java.util.TimerTask
 import kotlin.getValue
 
+/**
+ * The core entry point for the application. Coordinates runtime microphone permissions,
+ * configures an edge-to-edge system UI, initializes background processing loops, and
+ * binds the UI architecture to [TunerViewModel].
+ */
 class MainActivity : ComponentActivity() {
     private val viewModel: TunerViewModel by viewModels()
     private val requestPermissionLauncher = registerForActivityResult(
@@ -29,23 +34,34 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun startTuner() {
+    /**
+     * Connects pitch processing to the presentation layer by forwarding raw pitch data
+     * and detection probability directly to the view model.
+     */
+    private fun startTuner() {
         TunerFunctionality().startTuner {
-            pitch, probability ->
-                viewModel.updateIncomingFrequency(
-                    pitch,
-                    probability
-                )
+                pitch, probability ->
+            viewModel.updateIncomingFrequency(
+                pitch,
+                probability
+            )
         }
     }
 
-    fun startTunerInactivityLimit() {
+    /**
+     * Initializes the background ticker to continuously evaluate user inactivity thresholds.
+     */
+    private fun startTunerInactivityLimit() {
         TunerFunctionality().startTunerInactivityLimit {
             viewModel.checkLastDetectionTime()
         }
     }
 
-    fun startGridFlow() {
+    /**
+     * Schedules a recurring [TimerTask] responsible for animating the grid rendering canvas
+     * layer according to config-defined refresh intervals.
+     */
+    private fun startGridFlow() {
         Timer().schedule(
             object : TimerTask() {
                 override fun run() {
@@ -57,13 +73,14 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    /**
+     * Groups and starts background tasks.
+     */
     private fun initTuner() {
         startTuner()
         startTunerInactivityLimit()
         startGridFlow()
     }
-
-    // TODO: Some functions may have to be private.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,4 +115,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-

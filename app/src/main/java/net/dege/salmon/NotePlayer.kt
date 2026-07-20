@@ -6,6 +6,10 @@ import kotlin.concurrent.thread
 import kotlin.math.PI
 import kotlin.math.sin
 
+/**
+ * Manages the generation and audio playback of musical notes using [AudioTrack].
+ * It synthesizes waveforms dynamically and handles audio thread execution.
+ */
 class NotePlayer {
 
     private val _player: AudioTrack
@@ -25,6 +29,15 @@ class NotePlayer {
         _sampleRate = player.sampleRate
     }
 
+    /**
+     * Synthesizes a sine wave audio buffer for a given frequency and duration.
+     * Includes a 50ms fade-in and fade-out to prevent audible pop artifacts.
+     *
+     * @param freq The target frequency of the note in Hertz.
+     * @param duration The playback duration in seconds.
+     * @param sampleRate The sampling rate of the output device in Hertz.
+     * @return A [FloatArray] containing the PCM float audio samples.
+     */
     private fun generateSineWaveNote(
         freq: Float,
         duration: Float,
@@ -61,6 +74,15 @@ class NotePlayer {
         return sineArray
     }
 
+    /**
+     * Synthesizes a square wave audio buffer by mapping a sine wave to binary amplitudes.
+     * Includes a 50ms fade-in and fade-out to prevent audible pop artifacts.
+     *
+     * @param freq The target frequency of the note in Hertz.
+     * @param duration The playback duration in seconds.
+     * @param sampleRate The sampling rate of the output device in Hertz.
+     * @return A [FloatArray] containing the square wave PCM float audio samples.
+     */
     private fun generateSquareWaveNote(
         freq: Float,
         duration: Float,
@@ -87,6 +109,13 @@ class NotePlayer {
         return squareArray.toFloatArray()
     }
 
+    /**
+     * Writes the generated audio array buffer directly into the [AudioTrack] buffer.
+     * This operation blocks until the data is successfully written.
+     *
+     * @param freq The frequency associated with the audio array.
+     * @param audioArray The raw PCM float samples to write.
+     */
     private fun writeNoteSin(freq: Float, audioArray: FloatArray) {
         val player = _player
         val numOfSamples = audioArray.size
@@ -98,6 +127,13 @@ class NotePlayer {
         )
     }
 
+    /**
+     * Plays a generated note asynchronously on a background thread.
+     * Stops any ongoing playback before starting the new note.
+     *
+     * @param freq The frequency of the note to play in Hertz.
+     * @param callback Evaluated immediately after the audio buffer is written to the track.
+     */
     fun playNote(
         freq: Float,
         callback: () -> Unit

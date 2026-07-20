@@ -9,11 +9,21 @@ import be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm
 import kotlin.concurrent.fixedRateTimer
 import kotlin.concurrent.thread
 
+/**
+ * Handles real-time microphone input processing for musical pitch detection.
+ * Configures the TarsosDSP audio processing pipeline with filtering and gain amplification.
+ */
 class TunerFunctionality {
     private val _sampleRate = TunerConfig.SAMPLE_RATE
     private val _audioBufferSize = TunerConfig.AUDIO_BUFFER_SIZE
     private val _bufferOverlap = TunerConfig.BUFFER_OVERLAP
 
+    /**
+     * Initializes the microphone dispatcher, sets up the DSP chain, and starts pitch detection.
+     * The processing chain filters high frequencies, amplifies input, and runs asynchronously.
+     *
+     * @param callback Evaluated continuously with the detected frequency (in Hertz) and estimation confidence.
+     */
     fun startTuner(callback: (pitch: Float, probability: Float) -> Unit) {
         val audioDispatcher = AudioDispatcherFactory.fromDefaultMicrophone(
             _sampleRate, _audioBufferSize, _bufferOverlap
@@ -40,6 +50,11 @@ class TunerFunctionality {
         }
     }
 
+    /**
+     * Spawns a high-frequency background timer tasked with monitoring or handling inactivity states.
+     *
+     * @param callback Evaluated periodically every 10 milliseconds.
+     */
     fun startTunerInactivityLimit(callback: () -> Unit) {
         fixedRateTimer(
             name = "inactivity-timer",

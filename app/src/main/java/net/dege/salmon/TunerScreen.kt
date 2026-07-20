@@ -22,8 +22,6 @@ import androidx.compose.ui.zIndex
 import net.dege.salmon.ui.theme.*
 import kotlin.math.round
 
-// TODO: Manage imports...
-
 @Composable
 fun TitleSection(
     modifier: Modifier = Modifier,

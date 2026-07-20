@@ -1,5 +1,10 @@
 package net.dege.salmon
 
+/**
+ * Global configuration constants for the tuner architecture.
+ * Contains central values managing DSP properties, audio threshold values,
+ * rendering animations, and pipeline calculations.
+ */
 object TunerConfig {
 
     // Tuner functionality related configs:
