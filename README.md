@@ -12,6 +12,9 @@ The idea was to create a "useful alternative", later on I focused
 mostly on building a "proof of concept". There could be bugs and stuff
 that doesn't quite work. 
 
+However, this app is built totally by hand. No LLMs used except for generating
+function KDocs. The purpose was therefore to learn rather than to publish.
+
 ## Development
 
 1. Grab the source code and clone.
