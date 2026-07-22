@@ -1,0 +1,14 @@
+A fast, offline-first, open-source guitar tuner for Android.
+Most tuner apps today have evolved into subscription platforms,
+requiring internet connectivity, accounts, advertisements, or
+cloud services for functionality that should work entirely on-device.
+
+## Features
+
+* Useful UI
+* Real-time microphone input
+* Pitch detection
+* Note detection
+* Cents offset visualization
+* Guitar tuning mode (E2 A D G B E4)
+* Offline operation
