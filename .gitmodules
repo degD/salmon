@@ -1,0 +1,3 @@
+[submodule "TarsosDSP"]
+	path = TarsosDSP
+	url = https://github.com/degD/TarsosDSP-fdroid-compat

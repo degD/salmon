@@ -20,6 +20,11 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+includeBuild("TarsosDSP") {
+    dependencySubstitution {
+        substitute(module("be.tarsos.dsp:core")).using(project(":core"))
+    }
+}
 
 rootProject.name = "Salmon"
 include(":app")

@@ -4,11 +4,27 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/TarsosDSP" name="TarsosDSP">
+                <projects>
+                  <project path="$PROJECT_DIR$/TarsosDSP" />
+                  <project path="$PROJECT_DIR$/TarsosDSP/core" />
+                  <project path="$PROJECT_DIR$/TarsosDSP/jvm" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
         <option name="testRunner" value="CHOOSE_PER_TEST" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/TarsosDSP" />
+            <option value="$PROJECT_DIR$/TarsosDSP/core" />
+            <option value="$PROJECT_DIR$/TarsosDSP/jvm" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
