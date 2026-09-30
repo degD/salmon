@@ -12,38 +12,30 @@ import be.tarsos.dsp.io.TarsosDSPAudioInputStream
 import be.tarsos.dsp.pitch.PitchDetectionHandler
 import be.tarsos.dsp.pitch.PitchProcessor
 import be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm
+import java.util.Timer
 import kotlin.concurrent.fixedRateTimer
 import kotlin.concurrent.thread
 
 /**
  * Handles real-time microphone input processing for musical pitch detection.
  * Configures the TarsosDSP audio processing pipeline with filtering and gain amplification.
+ *
+ * A single instance owns the running [AudioDispatcher] and the inactivity [Timer] so
+ * both can be cleanly stopped when the owner activity is destroyed.
  */
 class TunerFunctionality {
     private val _sampleRate = TunerConfig.SAMPLE_RATE
     private val _audioBufferSize = TunerConfig.AUDIO_BUFFER_SIZE
     private val _bufferOverlap = TunerConfig.BUFFER_OVERLAP
 
+    private var _dispatcher: AudioDispatcher? = null
+    private var _inactivityTimer: Timer? = null
+
     /**
-     * Creates and initializes a TarsosDSP [AudioDispatcher] connected to the Android microphone input stream.
+     * Creates and initializes a TarsosDSP [AudioDispatcher] connected to the Android
+     * microphone input stream.
      *
-     * Configures a native Android [AudioRecord] to capture 16-bit PCM mono audio from [MediaRecorder.
-    AudioSource.MIC],
-     * wraps it in a [TarsosDSPAudioInputStream], and prepares an [AudioDispatcher] for processing.
-     *
-     * @param sampleRate The audio sampling rate in Hertz (e.g., 44100 Hz).
-     * @param bufferSize The number of audio samples per processing window (e.g., 2048). Must match the
-    buffer size
-     *			 used by downstream [be.tarsos.dsp.AudioProcessor] instances such as [PitchProcessor].
-     *	@param bufferOverlap The number of overlapping samples between consecutive audio processing buffers
-    (e.g., 0 for no overlap).
-     * @return A configured [AudioDispatcher] ready to accept audio processors and run asynchronously.
-     *
-     * @throws IllegalArgumentException If [AudioRecord] initialization fails due to invalid parameters or
-    unsupported hardware configuration.
-     * @see AudioRecord
-     * @see TarsosDSPAudioInputStream
-     * @see AudioDispatcher
+     * @throws IllegalStateException If [AudioRecord] cannot be initialized.
      */
     @SuppressLint("MissingPermission")
     fun createAndroidAudioDispatcher(
@@ -51,8 +43,6 @@ class TunerFunctionality {
         bufferSize: Int,
         bufferOverlap: Int
     ): AudioDispatcher {
-        // If permission missing, app closes by default.
-        // Therefore, there is no need for extra permission checks.
         val minBufferSize = AudioRecord.getMinBufferSize(
             sampleRate,
             AudioFormat.CHANNEL_IN_MONO,
@@ -66,6 +56,11 @@ class TunerFunctionality {
             AudioFormat.ENCODING_PCM_16BIT,
             maxOf(minBufferSize, bufferSize * 2)
         )
+
+        if (audioRecord.state != AudioRecord.STATE_INITIALIZED) {
+            audioRecord.release()
+            throw IllegalStateException("AudioRecord failed to initialize")
+        }
 
         audioRecord.startRecording()
 
@@ -81,8 +76,11 @@ class TunerFunctionality {
             override fun getFormat(): TarsosDSPAudioFormat = tarsosFormat
             override fun getFrameLength(): Long = -1
             override fun close() {
-                audioRecord.stop()
-                audioRecord.release()
+                try {
+                    audioRecord.stop()
+                } finally {
+                    audioRecord.release()
+                }
             }
         }
 
@@ -90,47 +88,65 @@ class TunerFunctionality {
     }
 
     /**
-     * Initializes the microphone dispatcher, sets up the DSP chain, and starts pitch detection.
-     * The processing chain filters high frequencies, amplifies input, and runs asynchronously.
+     * Initializes the microphone dispatcher, sets up the DSP chain, and starts pitch
+     * detection. The processing chain filters high frequencies, amplifies input, and
+     * runs asynchronously. Idempotent: a second call while running is a no-op.
      *
-     * @param callback Evaluated continuously with the detected frequency (in Hertz) and estimation confidence.
+     * @param callback Evaluated continuously with the detected frequency (in Hertz) and
+     *                 estimation confidence.
      */
     fun startTuner(callback: (pitch: Float, probability: Float) -> Unit) {
-        val audioDispatcher = createAndroidAudioDispatcher(_sampleRate, _audioBufferSize, _bufferOverlap)
-        val pdh = PitchDetectionHandler {
-                result, _ -> callback(result.pitch, result.probability)
+        if (_dispatcher != null) return
+
+        val audioDispatcher = createAndroidAudioDispatcher(
+            _sampleRate, _audioBufferSize, _bufferOverlap
+        )
+        _dispatcher = audioDispatcher
+
+        val pdh = PitchDetectionHandler { result, _ ->
+            callback(result.pitch, result.probability)
         }
         val audioProcessor = PitchProcessor(
             PitchEstimationAlgorithm.FFT_YIN,
             _sampleRate.toFloat(), _audioBufferSize, pdh
         )
 
-        println("Tuner started!")
-
-        // A 400Hz cutoff preserves all standard guitar fundamentals (E4 is ~329Hz)
-        // while stripping the higher harmonics that confuse the algorithm, especially
-        // at lower frequencies like E2...
+        // A 400Hz cutoff preserves standard guitar fundamentals (E4 ~329Hz) while
+        // stripping higher harmonics that confuse the algorithm at low frequencies.
         audioDispatcher.addAudioProcessor(LowPassFS(400f, _sampleRate.toFloat()))
-
         audioDispatcher.addAudioProcessor(GainProcessor(TunerConfig.TUNER_FUNC_AMPLIFICATION_FACTOR))
         audioDispatcher.addAudioProcessor(audioProcessor)
+
         thread(name = "tuning-thread") {
             audioDispatcher.run()
         }
     }
 
     /**
-     * Spawns a high-frequency background timer tasked with monitoring or handling inactivity states.
+     * Spawns a high-frequency background timer tasked with monitoring inactivity states.
+     * Idempotent: a second call while running is a no-op.
      *
      * @param callback Evaluated periodically every 10 milliseconds.
      */
     fun startTunerInactivityLimit(callback: () -> Unit) {
-        fixedRateTimer(
+        if (_inactivityTimer != null) return
+        _inactivityTimer = fixedRateTimer(
             name = "inactivity-timer",
-            initialDelay = 0.toLong(),
-            period = 10
+            initialDelay = 0L,
+            period = 10L
         ) {
             callback()
         }
+    }
+
+    /**
+     * Stops the audio dispatcher and inactivity timer. Safe to call multiple times.
+     */
+    fun stop() {
+        _dispatcher?.stop()
+        _dispatcher = null
+
+        _inactivityTimer?.cancel()
+        _inactivityTimer = null
     }
 }

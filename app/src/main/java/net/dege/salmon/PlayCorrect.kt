@@ -12,37 +12,70 @@ import kotlin.concurrent.thread
  */
 class PlayCorrect(context: Context) {
 
-    private val _soundPool: SoundPool
-    private val _soundId: Int
+    private val _soundPool: SoundPool = SoundPool.Builder()
+        .setMaxStreams(1)
+        .build()
+
+    private var _soundId: Int = 0
+    private var _loaded: Boolean = false
+
+    private val _lock = Any()
 
     init {
-        _soundPool = SoundPool.Builder()
-            .setMaxStreams(1)
-            .build()
+        _soundPool.setOnLoadCompleteListener { _, _, status ->
+            synchronized(_lock) {
+                _loaded = status == 0
+            }
+        }
         _soundId = _soundPool.load(context, R.raw.correct2, 1)
     }
 
     /**
      * Triggers the playback of the "correct tuning" audio effect.
-     * Executes a delayed callback on a background thread to account for asynchronous playback.
+     * The callback runs once the audible duration has elapsed, so the caller can
+     * safely release its "audio in progress" lock.
      *
-     * @param callback Evaluated 1000 milliseconds after the audio stream begins playing.
+     * @param callback Evaluated roughly 1000ms after the audio begins.
      */
     fun playCorrectSound(callback: () -> Unit) {
-        _soundPool.play(
-            _soundId,
-            1f,
-            1f,
-            1,
-            0,
-            1f
-        )
+        val ready = synchronized(_lock) { _loaded }
 
-        // That's necessary because soundPool plays audio asynchronously.
-        thread {
-            Thread.sleep(1000)
+        if (!ready) {
+            // Audio wasn't loaded in time; resolve the callback immediately so we
+            // never deadlock the microphone lock.
+            callback()
+            return
+        }
+
+        _soundPool.play(_soundId, 1f, 1f, 1, 0, 1f)
+
+        // SoundPool plays asynchronously and offers no simple completion callback,
+        // so we approximate the completion moment with a sleep.
+        thread(name = "correct-sound-callback") {
+            try {
+                Thread.sleep(1000)
+            } catch (_: InterruptedException) {
+                // Fall through and fire the callback anyway.
+            }
             callback()
         }
     }
 
+    /**
+     * Immediately silences any in-progress playback.
+     */
+    fun stop() {
+        try {
+            _soundPool.autoPause()
+        } catch (_: IllegalStateException) {
+            // Ignore.
+        }
+    }
+
+    /**
+     * Releases the underlying [SoundPool]. Call once when the owner is torn down.
+     */
+    fun release() {
+        _soundPool.release()
+    }
 }

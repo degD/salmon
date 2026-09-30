@@ -8,8 +8,8 @@ data class TunerSettings(
 )
 
 val defaultSettings: TunerSettings = TunerSettings(
-    true,
-    isCorrectThreshold = 15f,
-    false,
-    0
+    darkTheme = true,
+    isCorrectThreshold = 10f,
+    simplifyCentsDisplay = false,
+    simplificationFactor = 25
 )

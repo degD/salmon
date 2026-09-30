@@ -22,13 +22,17 @@ import kotlin.getValue
  */
 class MainActivity : ComponentActivity() {
     private val viewModel: TunerViewModel by viewModels()
+
+    private val tunerFunctionality = TunerFunctionality()
+    private var gridTimer: Timer? = null
+    private var isTunerInitialized = false
+
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
             initTuner()
-        }
-        else {
+        } else {
             // If no mic access, no tuner app!
             finishAndRemoveTask()
         }
@@ -39,12 +43,8 @@ class MainActivity : ComponentActivity() {
      * and detection probability directly to the view model.
      */
     private fun startTuner() {
-        TunerFunctionality().startTuner {
-                pitch, probability ->
-            viewModel.updateIncomingFrequency(
-                pitch,
-                probability
-            )
+        tunerFunctionality.startTuner { pitch, probability ->
+            viewModel.updateIncomingFrequency(pitch, probability)
         }
     }
 
@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
      * Initializes the background ticker to continuously evaluate user inactivity thresholds.
      */
     private fun startTunerInactivityLimit() {
-        TunerFunctionality().startTunerInactivityLimit {
+        tunerFunctionality.startTunerInactivityLimit {
             viewModel.checkLastDetectionTime()
         }
     }
@@ -62,37 +62,45 @@ class MainActivity : ComponentActivity() {
      * layer according to config-defined refresh intervals.
      */
     private fun startGridFlow() {
-        Timer().schedule(
-            object : TimerTask() {
-                override fun run() {
-                    viewModel.updateGridShift()
-                }
-            },
-            0,
-            TunerConfig.GRID_FLOW_UPDATE_RATE_MS.toLong()
-        )
+        if (gridTimer != null) return
+        gridTimer = Timer().apply {
+            schedule(
+                object : TimerTask() {
+                    override fun run() {
+                        viewModel.updateGridShift()
+                    }
+                },
+                0,
+                TunerConfig.GRID_FLOW_UPDATE_RATE_MS.toLong()
+            )
+        }
     }
 
     /**
-     * Groups and starts background tasks.
+     * Groups and starts background tasks. Idempotent so it is safe to call from both
+     * `onCreate` and the permission result callback.
      */
     private fun initTuner() {
+        if (isTunerInitialized) return
+        isTunerInitialized = true
         startTuner()
         startTunerInactivityLimit()
         startGridFlow()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        tunerFunctionality.stop()
+        gridTimer?.cancel()
+        gridTimer = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(
-                scrim = Color.TRANSPARENT,
-            ),
-            navigationBarStyle = SystemBarStyle.dark(
-                scrim = Color.TRANSPARENT
-            )
+            statusBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT)
         )
-        // TODO: Make sure that edge-to-edge usage is correct.
 
         when {
             ContextCompat.checkSelfPermission(

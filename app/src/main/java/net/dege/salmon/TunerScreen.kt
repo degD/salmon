@@ -46,36 +46,31 @@ fun TitleSection(
                 fontWeight = FontWeight.ExtraBold,
                 color = SalmonColor1,
             )
-            // TODO: Create font types objects (Like colors and themes)
         }
         Column(
             Modifier,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Switch(
-                state.mode == TunerMode.AUTO,
-                {
-                    viewModel.toggleMode()
-                },
-                colors = SwitchColors(
-                    SalmonColor4, SalmonColor1,
-                    Color.Transparent, SalmonColor4,
-                    SalmonColor3, SalmonColor2,
-                    Color.Transparent, SalmonColor4,
-                    SalmonColor4, SalmonColor2,
-                    SalmonColor4, SalmonColor4,
-                    SalmonColor4, SalmonColor2,
-                    SalmonColor4, SalmonColor4
+                checked = state.mode == TunerMode.AUTO,
+                onCheckedChange = { viewModel.toggleMode() },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = SalmonColor4,
+                    checkedTrackColor = SalmonColor1,
+                    checkedBorderColor = Color.Transparent,
+                    checkedIconColor = SalmonColor4,
+                    uncheckedThumbColor = SalmonColor3,
+                    uncheckedTrackColor = SalmonColor2,
+                    uncheckedBorderColor = Color.Transparent,
+                    uncheckedIconColor = SalmonColor4,
                 )
-                // TODO: No way to make it cleaner? Maybe create separate components for each section.
             )
             Text(
-                "AUTO",
+                if (state.mode == TunerMode.AUTO) "AUTO" else "MANUAL",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Light,
                 color = SalmonColor1,
             )
-
         }
     }
 }
@@ -89,8 +84,7 @@ fun NoteButton(
     val state = viewModel.tunerState.value
     val noteIndex = state.notes.indexOf(note)
     val noteFreq = tableOfFreq[note]
-    val isNoteCorrect = if (noteIndex >= 0)
-        state.isCorrect[noteIndex] else false
+    val isNoteCorrect = if (noteIndex >= 0) state.isCorrect[noteIndex] else false
 
     Box(modifier = modifier
         .size(64.dp)
@@ -105,10 +99,10 @@ fun NoteButton(
             CircleShape
         )
         .clickable {
+            val freq = noteFreq ?: return@clickable
             viewModel.setSelectedNote(note)
             viewModel.setModeManual()
-            viewModel.playNote(freq = noteFreq ?: 0f)
-            // Frequency of 0f means no wave at all.
+            viewModel.playNote(freq = freq)
         },
         contentAlignment = Alignment.Center,
     ) {
@@ -133,13 +127,9 @@ fun NotesColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround
     ) {
-        range.forEach {
-            rangeIndex ->
-                NoteButton(
-                    Modifier,
-                    state.notes[rangeIndex],
-                    viewModel
-                )
+        range.forEach { rangeIndex ->
+            val note = state.notes.getOrNull(rangeIndex) ?: return@forEach
+            NoteButton(Modifier, note, viewModel)
         }
     }
 }
@@ -155,22 +145,11 @@ fun NoteDisplaySection(
             .background(SalmonColor3),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Notes on the left
-        NotesColumn(
-            Modifier.weight(2f),
-            0..2,
-            viewModel
-        )
+        NotesColumn(Modifier.weight(2f), 0..2, viewModel)
 
-        // Separator for note columns
         Box(Modifier.weight(6f))
 
-        // Notes on the right
-        NotesColumn(
-            Modifier.weight(2f),
-            3..5,
-            viewModel
-        )
+        NotesColumn(Modifier.weight(2f), 3..5, viewModel)
     }
 }
 
@@ -179,11 +158,7 @@ fun FlowingGrid(
     modifier: Modifier = Modifier,
     viewModel: TunerViewModel
 ) {
-
-    Canvas(
-        modifier = modifier
-            .fillMaxSize()
-    ) {
+    Canvas(modifier = modifier.fillMaxSize()) {
         val gridShiftPx = viewModel.tunerState.value.gridShift.toPx()
         val cellSizePx = TunerConfig.GRID_SIZE_DP.dp.toPx()
         val numOfCellsWidthHalf = (size.width / cellSizePx / 2).toInt()
@@ -191,10 +166,11 @@ fun FlowingGrid(
         val centerW = size.width / 2
         val centerH = size.height / 2
 
-        // Draw a line when correct
+        // Draw a growing line while the current reading is within the correct threshold.
         val correctStartTime = viewModel.tunerState.value.correctStartTime
         var durationMs = correctStartTime?.elapsedNow()?.inWholeMilliseconds ?: 0
-        durationMs = if (durationMs < TunerConfig.CORRECT_TIME_MS) durationMs else TunerConfig.CORRECT_TIME_MS.toLong()
+        durationMs = if (durationMs < TunerConfig.CORRECT_TIME_MS)
+            durationMs else TunerConfig.CORRECT_TIME_MS.toLong()
         val correctLineLength = size.height * durationMs / TunerConfig.CORRECT_TIME_MS
         val correctLineStart = centerH - correctLineLength / 2
         val correctLineEnd = centerH + correctLineLength / 2
@@ -205,11 +181,11 @@ fun FlowingGrid(
             strokeWidth = 4.dp.toPx()
         )
 
-        // Draw a green line after being correct
+        // Draw a full-height green line when the selected note has been confirmed correct.
         val selectedNote = viewModel.tunerState.value.selectedNote
         if (selectedNote != null) {
             val noteIndex = viewModel.tunerState.value.notes.indexOf(selectedNote)
-            if (viewModel.tunerState.value.isCorrect[noteIndex]) {
+            if (noteIndex >= 0 && viewModel.tunerState.value.isCorrect[noteIndex]) {
                 drawLine(
                     SalmonColor5,
                     Offset(centerW, 0f),
@@ -221,7 +197,6 @@ fun FlowingGrid(
 
         val lineColor = SalmonColor4.copy(alpha = 0.2f)
 
-        // Draw grid vertical lines.
         for (i in 0..numOfCellsWidthHalf) {
             drawLine(
                 lineColor,
@@ -239,7 +214,6 @@ fun FlowingGrid(
             }
         }
 
-        // Draw grid horizontal lines.
         for (i in 0..numOfCellsHeightHalf + 1) {
             drawLine(
                 lineColor,
@@ -265,19 +239,26 @@ fun TuningSliderSection(
     viewModel: TunerViewModel
 ) {
     val state = viewModel.tunerState.value
-    val lastDetectionTime = viewModel.tunerState.value.lastDetectionTime
-    val selectedNote = viewModel.tunerState.value.selectedNote
+    val settings = viewModel.tunerSettings.value
+    val lastDetectionTime = state.lastDetectionTime
+    val selectedNote = state.selectedNote
 
-    BoxWithConstraints(modifier = modifier
-        .fillMaxSize()
-        .background(SalmonColor3),
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxSize()
+            .background(SalmonColor3),
         contentAlignment = Alignment.Center,
     ) {
         val boxWidth = maxWidth
         var offsetText = ""
 
         if (lastDetectionTime != null) {
-            offsetText = "${round(state.centsOffset / TunerConfig.SIMPLIFYING_FACTOR).toInt()}"
+            offsetText = if (settings.simplifyCentsDisplay) {
+                val factor = settings.simplificationFactor.coerceAtLeast(1)
+                "${round(state.centsOffset / factor).toInt()}"
+            } else {
+                "${round(state.centsOffset).toInt()}"
+            }
         }
 
         fun convertCentsOffsetToOffsetX(): Dp {
@@ -287,43 +268,36 @@ fun TuningSliderSection(
             return (boxWidth - 40.dp) * centsOffset / 200f
         }
 
-        // center (origin) line
         FlowingGrid(viewModel = viewModel)
 
-        // cursor positioning
-        Box(Modifier
-            .absoluteOffset(
+        Box(
+            Modifier.absoluteOffset(
                 if (lastDetectionTime != null) convertCentsOffsetToOffsetX() else 0.dp,
                 (-60).dp
-            ),
+            )
         ) {
-            Box(Modifier
-                .size(40.dp)
-                .background(SalmonColor6, CircleShape),
+            Box(
+                Modifier
+                    .size(40.dp)
+                    .background(SalmonColor6, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(offsetText, color = SalmonColor1)
             }
         }
 
-        // display selected note below it
         if (lastDetectionTime != null && selectedNote != null) {
-            Box(Modifier
-                .absoluteOffset(
-                    0.dp,
-                    60.dp
-                ),
-            ) {
-                Box(Modifier
-                    .size(40.dp)
-                    .background(SalmonColor2, CircleShape),
+            Box(Modifier.absoluteOffset(0.dp, 60.dp)) {
+                Box(
+                    Modifier
+                        .size(40.dp)
+                        .background(SalmonColor2, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(selectedNote, color = SalmonColor4)
                 }
             }
         }
-        // TODO: When false, slowly return back to center instead of teleporting.
     }
 }
 
@@ -338,28 +312,27 @@ fun FooterSection(
         verticalArrangement = Arrangement.SpaceAround
     ) {
         Button(
-            onClick = {
-                viewModel.restoreDefaults()
-            },
-            colors = ButtonColors(
-                SalmonColor2, SalmonColor4,
-                SalmonColor2, SalmonColor4
+            onClick = { viewModel.restoreDefaults() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = SalmonColor2,
+                contentColor = SalmonColor4,
+                disabledContainerColor = SalmonColor2,
+                disabledContentColor = SalmonColor4,
             )
         ) {
             Text("Start Over")
         }
     }
 }
+
 @Composable
 fun TunerScreen(viewModel: TunerViewModel) {
     Box(
         modifier = Modifier
             .background(SalmonColor6)
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.safeGestures)
-        // TODO: Make sure that inset usage is correct.
+            .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
-        // Background and Main Content Layout
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -369,31 +342,28 @@ fun TunerScreen(viewModel: TunerViewModel) {
         ) {
             TitleSection(
                 modifier = Modifier.weight(1f),
-                viewModel
+                viewModel = viewModel
             )
 
             TuningSliderSection(
                 modifier = Modifier.weight(3f),
-                viewModel
+                viewModel = viewModel
             )
 
             NoteDisplaySection(
                 modifier = Modifier.weight(5f),
-                viewModel
+                viewModel = viewModel
             )
 
-            // Empty placeholder weight for footer.
             Spacer(modifier = Modifier.weight(1f))
         }
 
-        // Guitar Headstock Image
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .zIndex(1f),
             contentAlignment = Alignment.BottomCenter
         ) {
-            // TODO: Shorten image import.
             androidx.compose.foundation.Image(
                 modifier = Modifier
                     .fillMaxSize()
@@ -404,20 +374,15 @@ fun TunerScreen(viewModel: TunerViewModel) {
             )
         }
 
-        // Footer Section
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .zIndex(2f),
             contentAlignment = Alignment.BottomEnd
         ) {
-            // Keep the same proportional height matching the Column's empty spacer
             FooterSection(
-                modifier = Modifier
-                    // Space of footer is 1f weight out of 10f.
-                    // Therefore, footer is 10% of the height.
-                    .fillMaxHeight(0.1f),
-                viewModel
+                modifier = Modifier.fillMaxHeight(0.1f),
+                viewModel = viewModel
             )
         }
     }
