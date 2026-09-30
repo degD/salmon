@@ -12,7 +12,7 @@ object TunerConfig {
     const val AUDIO_BUFFER_SIZE = 4096
     const val BUFFER_OVERLAP = 0
     const val PROBABILITY_THRESHOLD = 0.9f
-    const val CORRECT_TIME_MS = 300
+    const val CORRECT_TIME_MS = 100
     const val LAST_DETECT_TIME_MS = 2000
     const val GRID_FLOW_UPDATE_RATE_MS = 100
     const val GRID_FLOW_STEP_DP = 1
