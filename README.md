@@ -5,17 +5,9 @@ Most tuner apps today have evolved into subscription platforms,
 requiring internet connectivity, accounts, advertisements, or 
 cloud services for functionality that should work entirely on-device.
 
+* [Available on F-Droid!](https://f-droid.org/packages/net.dege.salmon/) 
+
 <img width="400" alt="Screenshot_20260720_201719" src="https://github.com/user-attachments/assets/85890205-72eb-4847-be39-dd674228e53d" />
-
-## Disclaimer
-
-While this app is "ready in principle", it may not be "fun to use".
-The idea was to create a "useful alternative", later on I focused
-mostly on building a "proof of concept". There could be bugs and stuff
-that doesn't quite work. 
-
-However, this app is built totally by hand. No LLMs used except for generating
-function KDocs. The purpose was therefore to learn rather than to publish.
 
 ## Development
 
@@ -40,7 +32,6 @@ function KDocs. The purpose was therefore to learn rather than to publish.
 * Other instruments support
 * Calibration adjustment (A4 = 432-445 Hz)
 * Noise robustness improvements
-* F-Droid distribution
 
 ## Technology Stack (Kotlin)
 
